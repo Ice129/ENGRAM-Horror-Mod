@@ -19,7 +19,7 @@ public class PathVisualizer {
      * DEBUG FLAG: Set to true to enable glowstone trail visualization.
      * Should be false in production builds.
      */
-    private static final boolean ENABLE_DEBUG_VISUALIZATION = true;
+    private static final boolean ENABLE_DEBUG_VISUALIZATION = false; // Set to true for debugging, false for production
     
     /**
      * Duration (in ticks) before glowstone blocks are restored to original state.
