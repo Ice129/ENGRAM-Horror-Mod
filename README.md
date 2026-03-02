@@ -3,13 +3,13 @@
 # ENGRAM 
 ##### (Previously My World.jar)
 ## A Vanilla-Style Slow-Burn Psychological Horror Mod
-#### *Version 0.4.1-beta*
+#### *Version 0.5.0-beta*
 
 Horror lives in the familiar, and there is no game more familiar than Minecraft. Playing off your own paranoia, ENGRAM is designed to make you question even the most innocuous aspects of your world. 
 
 This mod takes its time to play with you, letting you stew in your own fears all while something hides just out of sight, just as afraid as you are. There is a reason to all events, all building with one cohesive background narrative.
 
-With multiplayer support recently added, this mod will leave you unable to tell where it ends, and your game begins. There are no flashy effects, no overt modded textures. Just subtle, escalating disturbances that make you question whether you did that, or someone else did.
+With multiplayer support, this mod will leave you unable to tell where it ends, and your game begins. There are no flashy effects, no overt modded textures. Just subtle, escalating disturbances that make you question whether you did that, or someone else did.
 
 Join the [Discord](https://discord.gg/hgCNtXbqkC) to report bugs, give feedback, or learn more about the mod's development.
 
@@ -18,24 +18,27 @@ Join the [Discord](https://discord.gg/hgCNtXbqkC) to report bugs, give feedback,
 <details>
 <summary>Features:</summary>
 
+- **Pillars** - Something marked this place, it might come back.
 - **Explored caves** - Already lit, with ores already mined.
 - **Chopped-down trees** - You aren't the only one who needs wood.
-- **\* Strip mines** - Large, deep, unnatural tunnels dug beneath your feet.
-- **\* Being watched** - A presence staring down at you when you least expect it.
 - **Punched off ledges** - Knocked from cliffs by unseen hands
-- **\* Footsteps behind you** - Heard in caves, forests, even your base
-- **A fresh start** - Is your world really as new as you think?
+- **Footsteps behind you** - You're being followed
+- **A Not So New World** - It must just be a glitch
 - **Stolen items** - Missing tools, rearranged chests, doors left ajar
 - **Escalating aggression** - The longer you survive, the bolder it becomes
 - **Forgotten deaths** - You don’t remember dying here… so who did?
 - **Another player?** - It feels like someone else has been building, mining, surviving…
 - **Is it your world?** - What if you're the one who doesn’t belong here?
-- **Multiplayer support** - Experience the horror with friends
 - **Settings Changed** - Are you sure you turned that off? It’s back on now.
-- **Pillars** - Something marked this place, it might come back.
+- **Multiplayer support** - Experience the horror with friends
+- **\* Strip mines** - Large, deep, unnatural tunnels dug beneath your feet.
+- **\* Being watched** - A presence staring down at you when you least expect it.
 
 *\* indicates features planned for future updates*
 </details>
+
+## Configuration
+Mod features can be configured in-game using Mod Menu, or by editing the `config/ENGRAM.json` file located in your Minecraft directory.
 
 ## Development Status
 

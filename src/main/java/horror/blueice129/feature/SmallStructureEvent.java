@@ -18,6 +18,7 @@ import horror.blueice129.utils.SurfaceFinder;
 import horror.blueice129.utils.ChunkLoader;
 import horror.blueice129.utils.LineOfSightUtils;
 import horror.blueice129.utils.TorchPlacer;
+import net.minecraft.world.World;
 
 import net.minecraft.util.math.random.Random;
 
@@ -69,10 +70,13 @@ public class SmallStructureEvent {
         if (playerList.isEmpty()) {
             return false; // No players online
         }
-        ServerPlayerEntity player = playerList.get(RANDOM.nextInt(playerList.size()));
-        if (player == null) {
-            return false; // No player found
+        var overworldPlayers = playerList.stream()
+                .filter(p -> p.getWorld().getRegistryKey().equals(World.OVERWORLD))
+                .toList();
+        if (overworldPlayers.isEmpty()) {
+            return false;
         }
+        ServerPlayerEntity player = overworldPlayers.get(RANDOM.nextInt(overworldPlayers.size()));
         HorrorModPersistentState state = HorrorModPersistentState.getServerState(server);
         // adjust weights based on player agro meter
         adjustWeightsBasedOnAgro(state);
@@ -98,6 +102,9 @@ public class SmallStructureEvent {
      * @return boolean indicating if the event was successfully triggered
      */
     public static boolean triggerEvent(MinecraftServer server, ServerPlayerEntity player, String structureId) {
+        if (!player.getWorld().getRegistryKey().equals(World.OVERWORLD)) {
+            return false;
+        }
         // Adjust weights based on player agro meter
         HorrorModPersistentState state = HorrorModPersistentState.getServerState(server);
         adjustWeightsBasedOnAgro(state);
@@ -433,6 +440,9 @@ public class SmallStructureEvent {
 
     private static boolean deforestationEvent(MinecraftServer server, ServerPlayerEntity player) {
         BlockPos pos = findAndLoadSurfaceLocation(server, player, 80, 100);
+        if (pos == null) {
+            return false;
+        }
         
         BlockPos[] treePositions = SurfaceFinder.findTreePositions(server.getOverworld(), pos, 40);
         if (treePositions.length == 0) {
