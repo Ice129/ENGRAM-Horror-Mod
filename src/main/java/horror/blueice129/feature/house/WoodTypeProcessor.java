@@ -33,7 +33,8 @@ public class WoodTypeProcessor extends StructureProcessor {
             StructurePlacementData data) {
 
         Block replacement = replacements.get(current.state().getBlock());
-        if (replacement == null) return current;
+        if (replacement == null)
+            return current;
 
         BlockState newState = copyMatchingProperties(replacement.getDefaultState(), current.state());
         return new StructureTemplate.StructureBlockInfo(current.pos(), newState, current.nbt());
@@ -53,7 +54,8 @@ public class WoodTypeProcessor extends StructureProcessor {
         return target;
     }
 
-    private static <T extends Comparable<T>> BlockState copyProperty(BlockState target, BlockState source, Property<T> prop) {
+    private static <T extends Comparable<T>> BlockState copyProperty(BlockState target, BlockState source,
+            Property<T> prop) {
         return target.with(prop, source.get(prop));
     }
 
@@ -61,8 +63,8 @@ public class WoodTypeProcessor extends StructureProcessor {
         Map<Block, Block> map = new HashMap<>();
 
         String[] simpleSuffixes = {
-            "log", "wood", "planks", "slab", "stairs", "fence", "fence_gate",
-            "door", "trapdoor", "sign", "wall_sign", "pressure_plate", "button"
+                "log", "wood", "planks", "slab", "stairs", "fence", "fence_gate",
+                "door", "trapdoor", "sign", "wall_sign", "pressure_plate", "button"
         };
         for (String suffix : simpleSuffixes) {
             addReplacement(map, "birch_" + suffix, type + "_" + suffix);

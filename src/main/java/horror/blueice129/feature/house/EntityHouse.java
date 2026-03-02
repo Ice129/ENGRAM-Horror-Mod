@@ -64,23 +64,25 @@ public class EntityHouse {
     public static BlockPos[] possibleHouseStartLocations;
     private static int houseStage;
 
-    public static void findHouseStartLocation() {
-        return;
-
-    }
-
-    public static void findSuitableHouseStartLocation(PlayerEntity player, ServerWorld world) {
+    public static int findSuitableHouseStartLocation(PlayerEntity player, ServerWorld world, int MAXIMUM_FLATNESS_SCORE) {
 
         boolean foundLocation = false;
         int attempts = 0;
         while (!foundLocation && attempts < 4) {
-            BlockPos candidatePos = StructurePlacer.findSurfaceLocation(world, player.getBlockPos(), player, 16 * 7,
-                    16 * 20,
+            BlockPos candidatePos = StructurePlacer.findSurfaceLocation(world, player.getBlockPos(), player, 16 * 15,
+                    16 * 25,
                     true);
             if (candidatePos != null) {
                 int flatnessRating = evaluateFlatness(world, candidatePos);
+                if (flatnessRating <= MAXIMUM_FLATNESS_SCORE) {
+                    return flatnessRating;
+                }
+                    
+            } else {
+                attempts++;
             }
         }
+        return -1;
     }
 
     private static int evaluateFlatness(ServerWorld world, BlockPos pos) {
