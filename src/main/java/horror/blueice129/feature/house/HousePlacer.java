@@ -16,9 +16,14 @@ public class HousePlacer {
 
     public static void placeHouse(int stage, BlockPos startPos, ServerWorld world) {
         String woodType = getWoodType(world, startPos);
-        HorrorMod129.LOGGER.info("[HousePlacer] Detected wood type: '{}', placing stage {} at {}", woodType, stage, startPos.toShortString());
+        HorrorMod129.LOGGER.info("[HousePlacer] Detected wood type: '{}', placing stage {} at {}", woodType, stage,
+                startPos.toShortString());
 
         Identifier structureId = new Identifier("horror-mod-129", "entitybase/house" + stage);
+        // if stage is 2, move structure down 1 block
+        if (stage == 2) {
+            startPos = startPos.down();
+        }
 
         StructureTemplate template = world.getStructureTemplateManager().getTemplateOrBlank(structureId);
         HorrorMod129.LOGGER.info("[HousePlacer] Template size: {}", template.getSize());

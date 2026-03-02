@@ -93,8 +93,10 @@ public class EntityHouse {
                 int worldX = pos.getX() + x;
                 int worldZ = pos.getZ() + z;
                 int surfaceY = SurfaceFinder.findPointSurfaceY(world, worldX, worldZ, true, true, false);
+                
                 if (surfaceY == -1) {
                     flatnessScore += 3;
+                
                 } else {
                     BlockPos checkPos = new BlockPos(worldX, surfaceY, worldZ);
 
