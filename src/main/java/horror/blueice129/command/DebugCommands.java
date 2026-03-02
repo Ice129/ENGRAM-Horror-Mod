@@ -19,6 +19,7 @@ import horror.blueice129.feature.FpsLimiter;
 import horror.blueice129.feature.MouseSensitivityChanger;
 import horror.blueice129.feature.SmoothLightingChanger;
 import horror.blueice129.feature.house.EntityHouse;
+import horror.blueice129.feature.house.HousePlacer;
 import horror.blueice129.debug.LineOfSightChecker;
 import horror.blueice129.entity.Blueice129Entity;
 import horror.blueice129.scheduler.Blueice129SpawnScheduler;
@@ -217,6 +218,12 @@ public class DebugCommands {
                                         IntegerArgumentType.getInteger(context, "attempts"))))))
                         .then(literal("flatness")
                             .executes(context -> checkFlatness(context.getSource())))
+                        .then(literal("house")
+                            .then(literal("place")
+                                .then(argument("stage", IntegerArgumentType.integer(1, 9))
+                                    .executes(context -> placeHouseStage(
+                                        context.getSource(),
+                                        IntegerArgumentType.getInteger(context, "stage"))))))
                         .then(literal("visualize")
                             .then(literal("fov")
                                 .executes(context -> fillFieldOfViewWithGlass(context.getSource())))
@@ -942,6 +949,26 @@ public class DebugCommands {
         int flatnessScore = EntityHouse.debugForEvaluateFlatness(world, surfacePos);
 
         source.sendFeedback(() -> Text.literal("Flatness score at surface: " + flatnessScore + " (lower is flatter)"), false);
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int placeHouseStage(ServerCommandSource source, int stage) {
+        ServerPlayerEntity player = source.getPlayer();
+        if (player == null) {
+            source.sendError(Text.literal("This command must be run by a player"));
+            return 0;
+        }
+
+        ServerWorld world = (ServerWorld) player.getWorld();
+        BlockPos pos = player.getBlockPos();
+
+        try {
+            HousePlacer.placeHouse(stage, pos, world);
+            source.sendFeedback(() -> Text.literal("Placed house stage " + stage + " at " + pos.toShortString()), false);
+        } catch (Exception e) {
+            HorrorMod129.LOGGER.error("Failed to place house stage " + stage, e);
+            source.sendError(Text.literal("Failed to place house: " + e.getMessage()));
+        }
         return Command.SINGLE_SUCCESS;
     }
     
