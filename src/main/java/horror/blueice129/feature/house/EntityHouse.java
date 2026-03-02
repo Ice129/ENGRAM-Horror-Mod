@@ -1,4 +1,4 @@
-package horror.blueice129.feature;
+package horror.blueice129.feature.house;
 
 import horror.blueice129.utils.StructurePlacer;
 import horror.blueice129.utils.SurfaceFinder;
