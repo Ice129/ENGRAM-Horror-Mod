@@ -57,6 +57,8 @@ public class EntityHouseScheduler {
         if (player.getWorld().getRegistryKey() != World.OVERWORLD) return;
 
         runFlatnessCheck(server.getOverworld(), player, state);
+
+        blockPos playerBasePos = 
     }
 
     private static void runFlatnessCheck(ServerWorld world, PlayerEntity player, HorrorModPersistentState state) {
