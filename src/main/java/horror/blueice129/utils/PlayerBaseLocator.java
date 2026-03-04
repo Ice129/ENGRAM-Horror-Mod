@@ -3,6 +3,8 @@ package horror.blueice129.utils;
 import horror.blueice129.data.HorrorModPersistentState;
 
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.block.Block;
+import net.minecraft.block.Blocks;
 import horror.blueice129.HorrorMod129;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -51,5 +53,57 @@ public class PlayerBaseLocator {
         } else {
             HorrorMod129.LOGGER.warn("World spawn position is null, cannot track player base location.");
         }
+    }
+
+    public static int isPlayerBaseIndicatorBlock(Block block) {
+        Block[] strongExactIndicators = new Block[] {
+                Blocks.CHEST,
+                Blocks.TRAPPED_CHEST,
+                Blocks.ENDER_CHEST,
+                Blocks.FURNACE,
+                Blocks.BLAST_FURNACE,
+                Blocks.SMOKER,
+                Blocks.CRAFTING_TABLE,
+                Blocks.ANVIL,
+                Blocks.LANTERN,
+                Blocks.TORCH,
+                Blocks.CAMPFIRE,
+        };
+        String[] strongFuzzyIndicators = new String[] {
+                "door",
+                "sign",
+                "glass",
+                "stripped_log",
+                "plate", // pressure plate
+                "button",
+        };
+
+        String weakFuzzyIndicators[] = new String[] {
+                "cobble",
+                "plank",
+                "stair",
+                "slab",
+                "fence",
+                "log"
+        };
+
+        for (Block indicator : strongExactIndicators) {
+            if (block == indicator) {
+                return 3; // strong exact match
+            }
+        }
+        String blockName = block.getTranslationKey().toLowerCase();
+        for (String indicator : strongFuzzyIndicators) {
+            if (blockName.contains(indicator)) {
+                return 2; // strong fuzzy match
+            }
+        }
+        for (String indicator : weakFuzzyIndicators) {
+            if (blockName.contains(indicator)) {
+                return 1; // weak fuzzy match
+            }
+        }
+
+        return 0; // no match
     }
 }
