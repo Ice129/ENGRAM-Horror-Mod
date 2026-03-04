@@ -20,12 +20,9 @@ public class PlayerBaseLocator {
         BlockPos spawnPos = world.getSpawnPos();
 
         // now check for base blocks arround the spawn point
-        // cobble, doors, crafting tables, furnaces, chests, planks, stairs, slabs, fences, signs, torches, glass, anvils, double chests, 
+        // cobble, doors, crafting tables, furnaces, chests, planks, stairs, slabs,
+        // fences, signs, torches, glass, anvils, double chests,
         // stripped logs, smoker, blast furnace, lanterns, campfires
-
-
-
-
 
         HorrorModPersistentState state = HorrorModPersistentState.getServerState(world.getServer());
         if (spawnPos != null) {
