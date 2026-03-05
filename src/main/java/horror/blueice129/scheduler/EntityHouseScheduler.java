@@ -4,6 +4,7 @@ import horror.blueice129.HorrorMod129;
 import horror.blueice129.data.HorrorModPersistentState;
 import horror.blueice129.feature.house.EntityHouse;
 import horror.blueice129.feature.house.EntityHouse.FlatnessResult;
+import horror.blueice129.utils.PlayerBaseLocator;
 import horror.blueice129.utils.StructurePlacer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
@@ -58,7 +59,7 @@ public class EntityHouseScheduler {
 
         runFlatnessCheck(server.getOverworld(), player, state);
 
-        blockPos playerBasePos = 
+        BlockPos playerBasePos = PlayerBaseLocator.getPlayerBaseLocation(server.getOverworld(), player);
     }
 
     private static void runFlatnessCheck(ServerWorld world, PlayerEntity player, HorrorModPersistentState state) {
