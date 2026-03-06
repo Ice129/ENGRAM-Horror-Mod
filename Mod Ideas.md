@@ -97,8 +97,8 @@ TODO:
    - traps
    - flowers (extra armour drain)
 
-TODO:
-- armour taking durability when near an "anomaly"
+
+<!-- - - armour taking durability when near an "anomaly" -->
 
 TODO:
 - Compass starts to point in direction of entity base/nearest anomalous activity 
