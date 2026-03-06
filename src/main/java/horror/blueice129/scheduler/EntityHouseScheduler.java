@@ -57,13 +57,16 @@ public class EntityHouseScheduler {
         state.setTimer(FLATNESS_CHECK_TIMER, TICKS_BETWEEN_CHECKS);
 
         if (player.getWorld().getRegistryKey() != World.OVERWORLD) return;
-
-        runFlatnessCheck(server.getOverworld(), player, state);
-
+        
         String mode = getBaseMode(server, player);
-
+        
         switch (mode) {
             case "findingArea":
+                runFlatnessCheck(server.getOverworld(), player, state);
+                
+                break;
+            
+            case "preparingSpot":
                 
                 break;
             
@@ -92,7 +95,7 @@ public class EntityHouseScheduler {
                 bestCandidate = new BlockPos(entry[0], entry[1], entry[2]);
             }
         }
-        if (longestTime < )
+        if (longestTime <  )
 
         return "";
     }

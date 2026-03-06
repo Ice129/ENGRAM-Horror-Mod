@@ -77,9 +77,9 @@ public class PlayerBaseLocator {
 
         String weakFuzzyIndicators[] = new String[] {
                 "cobble",
-                "plank",
+                // "plank",
                 "stair",
-                "slab",
+                // "slab",
                 "fence",
                 "log"
         };
