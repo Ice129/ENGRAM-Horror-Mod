@@ -5,6 +5,7 @@ import horror.blueice129.config.ConfigManager;
 import horror.blueice129.entity.Blueice129Entity;
 import horror.blueice129.network.ModNetworking;
 import horror.blueice129.scheduler.AgroMeterScheduler;
+import horror.blueice129.scheduler.AmbianceScheduler;
 import horror.blueice129.scheduler.Blueice129SpawnScheduler;
 import horror.blueice129.scheduler.CaveMinerScheduler;
 import horror.blueice129.scheduler.FakeFootstepScheduler;
@@ -62,6 +63,7 @@ public class HorrorMod129 implements ModInitializer {
 		
 		// Register schedulers
 		OnWorldCreation.register();
+		AmbianceScheduler.register();
 		AgroMeterScheduler.register();
 		Blueice129SpawnScheduler.register();
 		CaveMinerScheduler.register();
