@@ -13,6 +13,7 @@ import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.block.Block;
 import net.minecraft.entity.player.PlayerEntity;
 
 public class EntityHouseScheduler {
@@ -59,7 +60,41 @@ public class EntityHouseScheduler {
 
         runFlatnessCheck(server.getOverworld(), player, state);
 
+        String mode = getBaseMode(server, player);
+
+        switch (mode) {
+            case "findingArea":
+                
+                break;
+            
+            case "firstPlacement":
+                
+                break;
+            
+            case 
+        
+            default:
+                break;
+        }
+
         BlockPos playerBasePos = PlayerBaseLocator.getPlayerBaseLocation(server.getOverworld(), player);
+    }
+
+    private static String getBaseMode(MinecraftServer server, PlayerEntity player) {
+        PlayerBaseLocator.updateBaseLocationHistory(server.getOverworld(), player);
+        HorrorModPersistentState state = HorrorModPersistentState.getServerState(server);
+        int[][] history = state.getInt2DArray(PlayerBaseLocator.PLAYER_SPAWNPOINT_HISTORY_TRACKER_ID);
+        int longestTime = 0;
+        BlockPos bestCandidate = null;
+        for (int[] entry : history) {
+            if (entry[3] > longestTime) {
+                longestTime = entry[3];
+                bestCandidate = new BlockPos(entry[0], entry[1], entry[2]);
+            }
+        }
+        if (longestTime < )
+
+        return "";
     }
 
     private static void runFlatnessCheck(ServerWorld world, PlayerEntity player, HorrorModPersistentState state) {

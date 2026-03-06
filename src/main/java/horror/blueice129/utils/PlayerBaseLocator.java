@@ -10,7 +10,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 
 public class PlayerBaseLocator {
-    private static final String PLAYER_SPAWNPOINT_HISTORY_TRACKER_ID = "playerSpawnpointHistoryTracker";
+    public static final String PLAYER_SPAWNPOINT_HISTORY_TRACKER_ID = "playerSpawnpointHistoryTracker";
     // an int[][] where each row is [x, y, z, TimeSpentAsSpawn]
     private static final int BASE_SCORE_THRESHOLD = 20;
     private static final int BASE_SCAN_RADIUS = 15;
