@@ -2,18 +2,24 @@ package horror.blueice129.scheduler;
 
 import horror.blueice129.HorrorMod129;
 import horror.blueice129.data.HorrorModPersistentState;
+import horror.blueice129.feature.house.AreaClearer;
 import horror.blueice129.feature.house.EntityHouse;
 import horror.blueice129.feature.house.EntityHouse.FlatnessResult;
+import horror.blueice129.feature.house.EntityHouseInteractionTracker;
+import horror.blueice129.feature.house.EntityHouseInteractionTracker.InteractionRecord;
+import horror.blueice129.feature.house.EntityHousePhase;
+import horror.blueice129.feature.house.HouseModificationPlanner;
+import horror.blueice129.feature.house.HousePlacer;
 import horror.blueice129.utils.PlayerBaseLocator;
 import horror.blueice129.utils.StructurePlacer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.block.Block;
 import net.minecraft.entity.player.PlayerEntity;
 
 public class EntityHouseScheduler {
@@ -21,9 +27,19 @@ public class EntityHouseScheduler {
     private static final String FLATNESS_CHECK_TIMER = "flatnessCheckTimer";
     // each row stores [x, y, z, flatness] — keeps position and score together to avoid sync issues
     private static final String CANDIDATE_DATA_KEY = "entityHouseCandidates";
+    private static final String PHASE_KEY = "entityHousePhase";
+    private static final String STAGE_KEY = "entityHouseStageNum";
+    private static final String HOUSE_POS_KEY = "entityHousePos";
+
     private static final int TICKS_BETWEEN_CHECKS = 20 * 60;
     private static final int SCAN_POINTS_PER_CYCLE = 3;
     private static final int MAX_CANDIDATES = 5;
+    private static final int BASE_CONFIRMATION_THRESHOLD = 8;
+    private static final int MIN_HOUSE_CHUNKS = 20;
+    private static final int MAX_HOUSE_CHUNKS = 30;
+    private static final int PLACEMENT_MIN_DISTANCE = 100;
+    // aggro value required to place each stage (index 0 = stage 1, index 4 = stage 5)
+    private static final int[] STAGE_AGGRO_THRESHOLDS = { 2, 4, 6, 8, 10 };
 
     private static final Random random = Random.create();
 
@@ -36,8 +52,6 @@ public class EntityHouseScheduler {
                 HorrorModPersistentState state = HorrorModPersistentState.getServerState(server);
                 if (!state.hasTimer(FLATNESS_CHECK_TIMER)) {
                     state.setTimer(FLATNESS_CHECK_TIMER, TICKS_BETWEEN_CHECKS);
-                    HorrorMod129.LOGGER.info("EntityHouseScheduler initialized with timer: {} ticks",
-                            state.getTimer(FLATNESS_CHECK_TIMER));
                 }
             }
         });
@@ -51,53 +65,129 @@ public class EntityHouseScheduler {
         int timer = state.decrementTimer(FLATNESS_CHECK_TIMER, 1);
         if (timer > 0) return;
 
+        state.setTimer(FLATNESS_CHECK_TIMER, TICKS_BETWEEN_CHECKS);
+
         PlayerEntity player = server.getPlayerManager().getPlayerList()
                 .get(random.nextInt(server.getPlayerManager().getPlayerList().size()));
 
-        state.setTimer(FLATNESS_CHECK_TIMER, TICKS_BETWEEN_CHECKS);
-
         if (player.getWorld().getRegistryKey() != World.OVERWORLD) return;
-        
-        String mode = getBaseMode(server, player);
-        
-        switch (mode) {
-            case "findingArea":
-                runFlatnessCheck(server.getOverworld(), player, state);
-                
-                break;
-            
-            case "preparingSpot":
-                
-                break;
-            
-            case "firstPlacement":
-                
-                break;
-            
-            case 
-        
-            default:
-                break;
-        }
 
-        BlockPos playerBasePos = PlayerBaseLocator.getPlayerBaseLocation(server.getOverworld(), player);
+        ServerWorld world = server.getOverworld();
+
+        switch (getPhase(state)) {
+            case FINDING_BASE      -> handleFindingBase(world, player, state);
+            case PREPARING         -> handlePreparing(world, state);
+            case AWAITING_PLACEMENT -> handleAwaitingPlacement(world, player, state);
+            case STAGE_ACTIVE      -> handleStageActive(world, player, state);
+            case COMPLETE          -> {}
+        }
     }
 
-    private static String getBaseMode(MinecraftServer server, PlayerEntity player) {
-        PlayerBaseLocator.updateBaseLocationHistory(server.getOverworld(), player);
-        HorrorModPersistentState state = HorrorModPersistentState.getServerState(server);
+    // --- phase handlers ---
+
+    private static void handleFindingBase(ServerWorld world, PlayerEntity player, HorrorModPersistentState state) {
+        runFlatnessCheck(world, player, state);
+
+        PlayerBaseLocator.updateBaseLocationHistory(world, player);
         int[][] history = state.getInt2DArray(PlayerBaseLocator.PLAYER_SPAWNPOINT_HISTORY_TRACKER_ID);
-        int longestTime = 0;
-        BlockPos bestCandidate = null;
+
+        BlockPos confirmedBase = null;
         for (int[] entry : history) {
-            if (entry[3] > longestTime) {
-                longestTime = entry[3];
-                bestCandidate = new BlockPos(entry[0], entry[1], entry[2]);
+            if (entry[3] >= BASE_CONFIRMATION_THRESHOLD) {
+                confirmedBase = new BlockPos(entry[0], entry[1], entry[2]);
+                break;
             }
         }
-        if (longestTime <  )
+        if (confirmedBase == null) return;
 
-        return "";
+        int[][] candidates = state.getInt2DArray(CANDIDATE_DATA_KEY);
+        FlatnessResult best = EntityHouse.pickBestCandidateNearBase(candidates, confirmedBase, MIN_HOUSE_CHUNKS, MAX_HOUSE_CHUNKS);
+        if (best == null) return;
+
+        state.setPosition(HOUSE_POS_KEY, best.pos);
+        setPhase(state, EntityHousePhase.PREPARING);
+        HorrorMod129.LOGGER.info("EntityHouseScheduler: base confirmed at {}, house location {} selected",
+                confirmedBase.toShortString(), best.pos.toShortString());
+    }
+
+    private static void handlePreparing(ServerWorld world, HorrorModPersistentState state) {
+        BlockPos housePos = state.getPosition(HOUSE_POS_KEY);
+        if (housePos == null) {
+            setPhase(state, EntityHousePhase.FINDING_BASE);
+            return;
+        }
+
+        AreaClearer.clearArea(world, housePos);
+        AreaClearer.placeTorches(world, housePos);
+
+        setPhase(state, EntityHousePhase.AWAITING_PLACEMENT);
+        HorrorMod129.LOGGER.info("EntityHouseScheduler: area prepared at {}", housePos.toShortString());
+    }
+
+    private static void handleAwaitingPlacement(ServerWorld world, PlayerEntity player, HorrorModPersistentState state) {
+        if (state.getIntValue("agroMeter", 0) < STAGE_AGGRO_THRESHOLDS[0]) return;
+
+        BlockPos housePos = state.getPosition(HOUSE_POS_KEY);
+        if (housePos == null) {
+            setPhase(state, EntityHousePhase.FINDING_BASE);
+            return;
+        }
+
+        if (!isPlacementWindowOpen(player, housePos)) return;
+
+        HousePlacer.placeHouse(1, housePos, world);
+        state.setIntValue(STAGE_KEY, 1);
+        setPhase(state, EntityHousePhase.STAGE_ACTIVE);
+        HorrorMod129.LOGGER.info("EntityHouseScheduler: placed stage 1 at {}", housePos.toShortString());
+    }
+
+    private static void handleStageActive(ServerWorld world, PlayerEntity player, HorrorModPersistentState state) {
+        int currentStage = state.getIntValue(STAGE_KEY, 1);
+        if (currentStage >= 5) {
+            setPhase(state, EntityHousePhase.COMPLETE);
+            return;
+        }
+
+        int nextStage = currentStage + 1;
+        if (state.getIntValue("agroMeter", 0) < STAGE_AGGRO_THRESHOLDS[nextStage - 1]) return;
+
+        BlockPos housePos = state.getPosition(HOUSE_POS_KEY);
+        if (housePos == null) return;
+
+        if (!isPlacementWindowOpen(player, housePos)) return;
+
+        InteractionRecord diff = EntityHouseInteractionTracker.buildDiff(world, housePos, currentStage);
+        HouseModificationPlanner.applyModifications(world, HouseModificationPlanner.planModifications(diff));
+        HousePlacer.placeHouse(nextStage, housePos, world);
+        state.setIntValue(STAGE_KEY, nextStage);
+
+        if (nextStage == 5) {
+            setPhase(state, EntityHousePhase.COMPLETE);
+            HorrorMod129.LOGGER.info("EntityHouseScheduler: placed final stage 5 at {}", housePos.toShortString());
+        } else {
+            HorrorMod129.LOGGER.info("EntityHouseScheduler: placed stage {} at {}", nextStage, housePos.toShortString());
+        }
+    }
+
+    // --- helpers ---
+
+    private static EntityHousePhase getPhase(HorrorModPersistentState state) {
+        int ordinal = state.getIntValue(PHASE_KEY, 0);
+        EntityHousePhase[] values = EntityHousePhase.values();
+        return (ordinal >= 0 && ordinal < values.length) ? values[ordinal] : EntityHousePhase.FINDING_BASE;
+    }
+
+    private static void setPhase(HorrorModPersistentState state, EntityHousePhase phase) {
+        state.setIntValue(PHASE_KEY, phase.ordinal());
+    }
+
+    private static boolean isPlacementWindowOpen(PlayerEntity player, BlockPos housePos) {
+        if (player.getBlockPos().getSquaredDistance(housePos) < PLACEMENT_MIN_DISTANCE * PLACEMENT_MIN_DISTANCE) {
+            return false;
+        }
+        Vec3d toHouse = Vec3d.ofCenter(housePos).subtract(player.getEyePos()).normalize();
+        Vec3d lookVec = player.getRotationVec(1.0f);
+        return lookVec.dotProduct(toHouse) < 0.5;
     }
 
     private static void runFlatnessCheck(ServerWorld world, PlayerEntity player, HorrorModPersistentState state) {
@@ -112,7 +202,6 @@ public class EntityHouseScheduler {
         }
 
         state.setInt2DArray(CANDIDATE_DATA_KEY, candidates);
-        HorrorMod129.LOGGER.info("EntityHouseScheduler: updated {} house location candidates", candidates.length);
     }
 
     private static int[][] insertCandidate(int[][] candidates, FlatnessResult result) {
@@ -125,7 +214,7 @@ public class EntityHouseScheduler {
             return updated;
         }
 
-        // replace the least flat candidate if the new one is better
+        // replace the worst candidate if the new one is flatter
         int worstIndex = 0;
         for (int i = 1; i < candidates.length; i++) {
             if (candidates[i][3] > candidates[worstIndex][3]) {

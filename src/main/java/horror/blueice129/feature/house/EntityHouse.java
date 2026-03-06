@@ -173,6 +173,23 @@ public class EntityHouse {
         return new FlatnessResult(bestPos, bestFlatness);
     }
 
+    public static FlatnessResult pickBestCandidateNearBase(int[][] candidates, BlockPos basePos, int minChunks, int maxChunks) {
+        int minBlocks = minChunks * 16;
+        int maxBlocks = maxChunks * 16;
+        FlatnessResult best = null;
+
+        for (int[] entry : candidates) {
+            BlockPos pos = new BlockPos(entry[0], entry[1], entry[2]);
+            double dist = Math.sqrt(basePos.getSquaredDistance(pos));
+            if (dist < minBlocks || dist > maxBlocks) continue;
+            if (best == null || entry[3] < best.flatness) {
+                best = new FlatnessResult(pos, entry[3]);
+            }
+        }
+
+        return best;
+    }
+
     public static int debugForEvaluateFlatness(ServerWorld world, BlockPos pos) {
         // return evaluateFlatness(world, pos);
         FlatnessResult result = getBestLocalFlatness(world, pos);
