@@ -10,8 +10,8 @@ import net.minecraft.server.world.ServerWorld;
 
 public class AmbianceScheduler {
 
-    // private static final int COOLDOWN_TICKS = 15 * 60 * 20; // 15 minutes in ticks
-    private static final int COOLDOWN_TICKS = 3; ////////////////// DEBUG ONLY, 3 TICKS COOLDOWN //////////////////////
+    private static final int COOLDOWN_TICKS = 15 * 60 * 20; // 15 minutes in ticks
+    // private static final int COOLDOWN_TICKS = 3; ////////////////// DEBUG ONLY, 3 TICKS COOLDOWN //////////////////////
 
     public static void register() {
         ServerLivingEntityEvents.ALLOW_DAMAGE.register((entity, source, amount) -> {

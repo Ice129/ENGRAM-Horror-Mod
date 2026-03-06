@@ -22,7 +22,7 @@ public class ScaryAmbiance {
     // play 1 of the sounds at a 10% chance of happeneing every time the player takes damage, with a cooldown of 3 in game day
     public static boolean attemptPlayScaryAmbiance(ServerWorld world, ServerPlayerEntity player) {
         // play the noise, the logic can be done in the scheduler
-        if (Random.createLocal().nextFloat() < 0.1) {
+        if (Random.createLocal().nextFloat() < 0.3f) {
             String soundId = SCARY_SOUNDS[Random.createLocal().nextInt(SCARY_SOUNDS.length)];
             SoundEvent soundEvent = SoundEvent.of(Identifier.tryParse(soundId));
             world.playSound(null, player.getBlockPos(), soundEvent, SoundCategory.AMBIENT, 2.0f, 1.0f);
