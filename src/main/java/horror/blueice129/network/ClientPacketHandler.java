@@ -7,6 +7,7 @@ import horror.blueice129.feature.FpsLimiter;
 import horror.blueice129.feature.MouseSensitivityChanger;
 import horror.blueice129.feature.RenderDistanceChanger;
 import horror.blueice129.feature.SmoothLightingChanger;
+import horror.blueice129.utils.ScreenshotFromEntity;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.util.math.random.Random;
 // import net.minecraft.network.PacketByteBuf;
@@ -31,6 +32,15 @@ public class ClientPacketHandler {
                     // Read payload on network thread and execute handling on main thread
                     final SettingsTriggerPayload.SettingType type = SettingsTriggerPayload.read(buf);
                     client.execute(() -> handleSettingsTrigger(type));
+                });
+
+        ClientPlayNetworking.registerGlobalReceiver(ModNetworking.ENTITY_SCREENSHOT_ID,
+                (client, handler, buf, responseSender) -> {
+                    final int entityId = buf.readInt();
+                    client.execute(() -> {
+                        if (client.world == null) return;
+                        ScreenshotFromEntity.scheduleScreenshot(client.world.getEntityById(entityId));
+                    });
                 });
 
         HorrorMod129.LOGGER.info("Registered client packet receivers");

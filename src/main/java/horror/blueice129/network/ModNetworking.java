@@ -1,7 +1,7 @@
 package horror.blueice129.network;
 
 import horror.blueice129.HorrorMod129;
-// import io.netty.buffer.Unpooled;
+import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
@@ -11,6 +11,7 @@ import net.minecraft.util.Identifier;
  */
 public class ModNetworking {
     public static final Identifier SETTINGS_TRIGGER_ID = new Identifier(HorrorMod129.MOD_ID, "settings_trigger");
+    public static final Identifier ENTITY_SCREENSHOT_ID = new Identifier(HorrorMod129.MOD_ID, "entity_screenshot");
 
     public static void registerPackets() {
         // No server-side registration required for simple S2C packets with Fabric.
@@ -29,5 +30,11 @@ public class ModNetworking {
         ServerPlayNetworking.send(player, SETTINGS_TRIGGER_ID, buf);
         HorrorMod129.LOGGER.info("Sent settings trigger packet to " + player.getName().getString() +
                 " for setting: " + settingType);
+    }
+
+    public static void sendEntityScreenshot(net.minecraft.server.network.ServerPlayerEntity player, int entityId) {
+        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+        buf.writeInt(entityId);
+        ServerPlayNetworking.send(player, ENTITY_SCREENSHOT_ID, buf);
     }
 }
