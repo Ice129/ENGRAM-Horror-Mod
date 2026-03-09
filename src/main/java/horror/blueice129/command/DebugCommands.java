@@ -42,6 +42,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.block.Blocks;
 // import net.minecraft.block.BlockState;
 import com.mojang.brigadier.Command;
+import horror.blueice129.network.ModNetworking;
 import horror.blueice129.utils.SurfaceFinder;
 import net.minecraft.server.MinecraftServer;
 
@@ -231,7 +232,10 @@ public class DebugCommands {
                             .then(literal("notvisible")
                                 .executes(context -> fillNotVisibleBlocksWithConcrete(context.getSource())))
                             .then(literal("trees")
-                                .executes(context -> placeDiamondPillars(context.getSource())))))
+                                .executes(context -> placeDiamondPillars(context.getSource()))))
+                        .then(literal("screenshot")
+                            .then(literal("cam")
+                                .executes(context -> screenshotFromCam(context.getSource())))))
                     
                     // === PERSISTENT STATE ===
                     .then(literal("state")
@@ -1276,6 +1280,36 @@ public class DebugCommands {
             HorrorMod129.LOGGER.error("Error getting spawn chance", e);
             return 0;
         }
+    }
+
+    private static int screenshotFromCam(ServerCommandSource source) {
+        ServerPlayerEntity player = source.getPlayer();
+        if (player == null) {
+            source.sendError(Text.literal("This command must be run by a player"));
+            return 0;
+        }
+
+        ServerWorld world = (ServerWorld) player.getWorld();
+        Entity nearest = null;
+        double nearestDist = Double.MAX_VALUE;
+
+        for (Entity entity : world.iterateEntities()) {
+            if (!"cam".equalsIgnoreCase(entity.getName().getString())) continue;
+            double dist = entity.squaredDistanceTo(player);
+            if (dist < nearestDist) {
+                nearestDist = dist;
+                nearest = entity;
+            }
+        }
+
+        if (nearest == null) {
+            source.sendError(Text.literal("No entity named 'cam' found"));
+            return 0;
+        }
+
+        ModNetworking.sendEntityScreenshot(player, nearest.getId());
+        source.sendFeedback(() -> Text.literal("Screenshot queued from 'cam' entity"), false);
+        return 1;
     }
 
     /**
