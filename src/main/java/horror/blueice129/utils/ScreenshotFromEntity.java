@@ -6,6 +6,7 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.gl.SimpleFramebuffer;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.OtherClientPlayerEntity;
 import net.minecraft.client.option.Perspective;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -95,17 +96,32 @@ public class ScreenshotFromEntity {
         if (camera == null) return;
 
         Vec3d cameraPos = camera.getPos();
-        Vec3d playerPos = client.player.getLerpedPos(tickDelta);
+        OtherClientPlayerEntity fakePlayer = new OtherClientPlayerEntity(client.world, client.player.getGameProfile());
+        fakePlayer.copyPositionAndRotation(client.player);
+        fakePlayer.prevX = client.player.prevX;
+        fakePlayer.prevY = client.player.prevY;
+        fakePlayer.prevZ = client.player.prevZ;
+        fakePlayer.prevYaw = client.player.prevYaw;
+        fakePlayer.prevPitch = client.player.prevPitch;
+        fakePlayer.prevBodyYaw = client.player.prevBodyYaw;
+        fakePlayer.bodyYaw = client.player.bodyYaw;
+        fakePlayer.prevHeadYaw = client.player.prevHeadYaw;
+        fakePlayer.headYaw = client.player.headYaw;
+        fakePlayer.age = client.player.age;
+        fakePlayer.setSneaking(client.player.isSneaking());
+        fakePlayer.setSprinting(client.player.isSprinting());
+        fakePlayer.setPose(client.player.getPose());
+
+        Vec3d playerPos = fakePlayer.getLerpedPos(tickDelta);
 
         VertexConsumerProvider.Immediate consumers = client.getBufferBuilders().getEntityVertexConsumers();
-        int light = client.getEntityRenderDispatcher().getLight(client.player, tickDelta);
-
+        int light = client.getEntityRenderDispatcher().getLight(fakePlayer, tickDelta);
         client.getEntityRenderDispatcher().render(
-                client.player,
+                fakePlayer,
                 playerPos.x - cameraPos.x,
                 playerPos.y - cameraPos.y,
                 playerPos.z - cameraPos.z,
-                client.player.getYaw(tickDelta),
+                fakePlayer.getYaw(tickDelta),
                 tickDelta,
                 new MatrixStack(),
                 consumers,
