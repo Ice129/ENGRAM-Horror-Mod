@@ -1,5 +1,6 @@
 package horror.blueice129.utils;
 
+import horror.blueice129.mixin.client.GameRendererAccessor;
 import horror.blueice129.mixin.client.MinecraftClientAccessor;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -16,6 +17,7 @@ import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.ScreenshotRecorder;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.util.math.Vec3d;
 
 @Environment(EnvType.CLIENT)
@@ -54,11 +56,13 @@ public class ScreenshotFromEntity {
         Framebuffer mainFramebuffer = client.getFramebuffer();
         originalCamera = client.cameraEntity;
         originalPerspective = client.options.getPerspective();
+        boolean originalRenderHand = ((GameRendererAccessor) gameRenderer).horrorMod129$getRenderHand();
 
         try {
             client.options.setPerspective(Perspective.FIRST_PERSON);
             client.setCameraEntity(activeTarget);
             ((MinecraftClientAccessor) client).horrorMod129$setFramebuffer(offscreenFramebuffer);
+            gameRenderer.setRenderHand(false);
 
             offscreenFramebuffer.beginWrite(true);
             gameRenderer.renderWorld(tickDelta, renderTime, new MatrixStack());
@@ -67,6 +71,7 @@ public class ScreenshotFromEntity {
         } finally {
             offscreenFramebuffer.endWrite();
             ((MinecraftClientAccessor) client).horrorMod129$setFramebuffer(mainFramebuffer);
+            gameRenderer.setRenderHand(originalRenderHand);
             mainFramebuffer.beginWrite(true);
 
             Entity restore = originalCamera != null ? originalCamera : client.player;
@@ -142,6 +147,7 @@ public class ScreenshotFromEntity {
         fakePlayer.setSneaking(client.player.isSneaking());
         fakePlayer.setSprinting(client.player.isSprinting());
         fakePlayer.setPose(client.player.getPose());
+        copyEquippedItems(client, fakePlayer);
 
         Vec3d playerPos = fakePlayer.getLerpedPos(tickDelta);
 
@@ -162,6 +168,12 @@ public class ScreenshotFromEntity {
 
         if (consumers instanceof VertexConsumerProvider.Immediate immediateConsumers) {
             immediateConsumers.draw();
+        }
+    }
+
+    private static void copyEquippedItems(MinecraftClient client, OtherClientPlayerEntity fakePlayer) {
+        for (EquipmentSlot slot : EquipmentSlot.values()) {
+            fakePlayer.equipStack(slot, client.player.getEquippedStack(slot).copy());
         }
     }
 }
