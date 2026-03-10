@@ -2,6 +2,7 @@ package horror.blueice129.scheduler;
 
 import horror.blueice129.feature.LedgePusher;
 import horror.blueice129.data.HorrorModPersistentState;
+import horror.blueice129.utils.EntityLoginState;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.minecraft.server.MinecraftServer;
@@ -51,6 +52,11 @@ public class LedgePusherScheduler {
         if (server.getPlayerManager().getPlayerList().isEmpty()) {
             return;
         }
+
+        if (!EntityLoginState.isEntityOnline(state)) {
+            return;
+        }
+        
         
         // Select a random player from the server
         PlayerEntity player = server.getPlayerManager().getPlayerList()

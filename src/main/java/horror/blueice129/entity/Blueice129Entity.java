@@ -1,6 +1,7 @@
 package horror.blueice129.entity;
 
 import horror.blueice129.entity.goals.GoalProfileRegistry;
+import horror.blueice129.utils.EntityLoginState;
 import horror.blueice129.HorrorMod129;
 import horror.blueice129.data.HorrorModPersistentState;
 import net.minecraft.entity.Entity;
@@ -225,6 +226,7 @@ public class Blueice129Entity extends PathAwareEntity {
                     this.getWorld().getServer().getPlayerManager().broadcast(net.minecraft.text.Text
                             .literal("Blueice129 left the game").styled(style -> style.withColor(0xFFFF55)), false);
                     this.remove(RemovalReason.DISCARDED);
+                    EntityLoginState.setEntityLoggedOut(HorrorModPersistentState.getServerState(this.getWorld().getServer()));
                     return; // Stop processing after despawn
                 }
                 

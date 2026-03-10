@@ -13,4 +13,12 @@ public class EntityLoginState {
         }
         return entityOnline == 1;
     }
+
+    public static void setEntityLoggedIn(HorrorModPersistentState state) {
+        state.setIntValue(ENTITY_ONLINE_KEY, 1);
+    }
+
+    public static void setEntityLoggedOut(HorrorModPersistentState state) {
+        state.setIntValue(ENTITY_ONLINE_KEY, 0);
+    }
 }
