@@ -1,14 +1,17 @@
 package horror.blueice129.utils;
 
+import horror.blueice129.mixin.client.MinecraftClientAccessor;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
+import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.gl.SimpleFramebuffer;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.OtherClientPlayerEntity;
 import net.minecraft.client.option.Perspective;
 import net.minecraft.client.render.Camera;
+import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.ScreenshotRecorder;
 import net.minecraft.client.util.math.MatrixStack;
@@ -19,11 +22,14 @@ import net.minecraft.util.math.Vec3d;
 public class ScreenshotFromEntity {
 
     private static Entity pendingTarget = null;
+    private static Entity activeTarget = null;
     private static Framebuffer offscreenFramebuffer = null;
+    private static Entity originalCamera = null;
+    private static Perspective originalPerspective = Perspective.FIRST_PERSON;
     private static boolean captureInProgress = false;
 
     public static void initialize() {
-        ClientTickEvents.END_CLIENT_TICK.register(ScreenshotFromEntity::onTickEnd);
+        WorldRenderEvents.AFTER_ENTITIES.register(ScreenshotFromEntity::onAfterEntities);
     }
 
     public static void scheduleScreenshot(Entity target) {
@@ -31,20 +37,59 @@ public class ScreenshotFromEntity {
         pendingTarget = target;
     }
 
-    private static void onTickEnd(MinecraftClient client) {
-        if (pendingTarget == null || client.player == null || client.world == null) return;
-        if (!pendingTarget.isAlive()) {
+    public static void captureOffscreen(GameRenderer gameRenderer, float tickDelta, long renderTime) {
+        MinecraftClient client = MinecraftClient.getInstance();
+        if (pendingTarget == null || client.player == null || client.world == null || captureInProgress) return;
+        if (!pendingTarget.isAlive() || pendingTarget.getWorld() != client.world) {
             pendingTarget = null;
             return;
         }
 
+        ensureOffscreenFramebuffer(client);
+
+        activeTarget = pendingTarget;
+        pendingTarget = null;
         captureInProgress = true;
+
+        Framebuffer mainFramebuffer = client.getFramebuffer();
+        originalCamera = client.cameraEntity;
+        originalPerspective = client.options.getPerspective();
+
         try {
-            captureOffscreen(client, pendingTarget);
+            client.options.setPerspective(Perspective.FIRST_PERSON);
+            client.setCameraEntity(activeTarget);
+            ((MinecraftClientAccessor) client).horrorMod129$setFramebuffer(offscreenFramebuffer);
+
+            offscreenFramebuffer.beginWrite(true);
+            gameRenderer.renderWorld(tickDelta, renderTime, new MatrixStack());
+            ScreenshotRecorder.saveScreenshot(client.runDirectory, offscreenFramebuffer, msg -> {
+                });
         } finally {
-            pendingTarget = null;
+            offscreenFramebuffer.endWrite();
+            ((MinecraftClientAccessor) client).horrorMod129$setFramebuffer(mainFramebuffer);
+            mainFramebuffer.beginWrite(true);
+
+            Entity restore = originalCamera != null ? originalCamera : client.player;
+            if (restore != null) {
+                client.setCameraEntity(restore);
+            }
+
+            client.options.setPerspective(originalPerspective);
+            restoreMainCamera(gameRenderer, client, restore, tickDelta);
+            originalCamera = null;
+            activeTarget = null;
             captureInProgress = false;
         }
+    }
+
+    private static void restoreMainCamera(GameRenderer gameRenderer, MinecraftClient client, Entity cameraEntity, float tickDelta) {
+        if (client.world == null || cameraEntity == null) return;
+
+        boolean thirdPerson = originalPerspective != Perspective.FIRST_PERSON;
+        boolean inverseView = originalPerspective == Perspective.THIRD_PERSON_FRONT;
+        Camera camera = gameRenderer.getCamera();
+        camera.update(client.world, cameraEntity, thirdPerson, inverseView, tickDelta);
+        client.getSoundManager().updateListenerPosition(camera);
     }
 
     private static void ensureOffscreenFramebuffer(MinecraftClient client) {
@@ -61,39 +106,25 @@ public class ScreenshotFromEntity {
         }
     }
 
-    private static void captureOffscreen(MinecraftClient client, Entity target) {
-        ensureOffscreenFramebuffer(client);
+    private static void onAfterEntities(WorldRenderContext context) {
+        if (!captureInProgress) return;
 
-        Framebuffer mainFramebuffer = client.getFramebuffer();
-        Entity originalCamera = client.cameraEntity;
-        Perspective originalPerspective = client.options.getPerspective();
+        MinecraftClient client = MinecraftClient.getInstance();
+        if (client.player == null || activeTarget == null) return;
 
-        try {
-            client.options.setPerspective(Perspective.FIRST_PERSON);
-            client.setCameraEntity(target);
-
-            offscreenFramebuffer.beginWrite(true);
-            float tickDelta = client.getTickDelta();
-            client.gameRenderer.renderWorld(tickDelta, client.getRenderTime(), new MatrixStack());
-            renderLocalPlayerForCapture(client, tickDelta);
-            ScreenshotRecorder.saveScreenshot(client.runDirectory, offscreenFramebuffer, msg -> {});
-        } finally {
-            offscreenFramebuffer.endWrite();
-            mainFramebuffer.beginWrite(true);
-
-            Entity restore = originalCamera != null ? originalCamera : client.player;
-            if (restore != null) {
-                client.setCameraEntity(restore);
-            }
-            client.options.setPerspective(originalPerspective);
-        }
+        renderLocalPlayerForCapture(client, context);
     }
 
-    private static void renderLocalPlayerForCapture(MinecraftClient client, float tickDelta) {
+    private static void renderLocalPlayerForCapture(MinecraftClient client, WorldRenderContext context) {
         if (client.player == null) return;
 
-        Camera camera = client.gameRenderer.getCamera();
+        Camera camera = context.camera();
         if (camera == null) return;
+
+        VertexConsumerProvider consumers = context.consumers();
+        if (consumers == null) return;
+
+        float tickDelta = context.tickDelta();
 
         Vec3d cameraPos = camera.getPos();
         OtherClientPlayerEntity fakePlayer = new OtherClientPlayerEntity(client.world, client.player.getGameProfile());
@@ -114,8 +145,9 @@ public class ScreenshotFromEntity {
 
         Vec3d playerPos = fakePlayer.getLerpedPos(tickDelta);
 
-        VertexConsumerProvider.Immediate consumers = client.getBufferBuilders().getEntityVertexConsumers();
         int light = client.getEntityRenderDispatcher().getLight(fakePlayer, tickDelta);
+        MatrixStack matrices = context.matrixStack();
+        matrices.push();
         client.getEntityRenderDispatcher().render(
                 fakePlayer,
                 playerPos.x - cameraPos.x,
@@ -123,11 +155,14 @@ public class ScreenshotFromEntity {
                 playerPos.z - cameraPos.z,
                 fakePlayer.getYaw(tickDelta),
                 tickDelta,
-                new MatrixStack(),
+                matrices,
                 consumers,
                 light);
+        matrices.pop();
 
-        consumers.draw();
+        if (consumers instanceof VertexConsumerProvider.Immediate immediateConsumers) {
+            immediateConsumers.draw();
+        }
     }
 }
 
