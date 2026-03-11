@@ -70,23 +70,22 @@ public class LineOfSightChecker {
         BlockPos playerPos = player.getBlockPos();
         int range = (int) Math.ceil(maxDistance);
 
+        java.util.List<BlockPos> visible = new java.util.ArrayList<>();
+
         for (int x = -range; x <= range; x++) {
             for (int y = -range; y <= range; y++) {
                 for (int z = -range; z <= range; z++) {
                     BlockPos targetPos = playerPos.add(x, y, z);
-                    
-                    // Skip air blocks
-                    if (world.isAir(targetPos)) {
-                        continue;
-                    }
-                    
-                    
-                    // Use the isBlockRenderedOnScreen method to check if the block is rendered
+                    if (world.isAir(targetPos)) continue;
                     if (LineOfSightUtils.isBlockRenderedOnScreen(player, targetPos, maxDistance)) {
-                        world.setBlockState(targetPos, net.minecraft.block.Blocks.BLACK_CONCRETE.getDefaultState());
+                        visible.add(targetPos.toImmutable());
                     }
                 }
             }
+        }
+
+        for (BlockPos pos : visible) {
+            world.setBlockState(pos, net.minecraft.block.Blocks.BLACK_CONCRETE.getDefaultState());
         }
     }
 
@@ -156,7 +155,7 @@ public class LineOfSightChecker {
         
         // Second pass: Fill all marked positions
         for (BlockPos pos : positionsToFill) {
-            world.setBlockState(pos, net.minecraft.block.Blocks.AIR.getDefaultState());
+            world.setBlockState(pos, net.minecraft.block.Blocks.GREEN_STAINED_GLASS.getDefaultState());
         }
         
         horror.blueice129.HorrorMod129.LOGGER.info(String.format(

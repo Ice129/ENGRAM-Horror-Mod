@@ -242,10 +242,21 @@ public class LineOfSightUtils {
                 return false; // Solid block blocked view
             }
             
-            // Hit a transparent block - continue from slightly past the hit point
+            // Hit a transparent block - jump to just past its exit face
             Vec3d hitPoint = hitResult.getPos();
             Vec3d direction = end.subtract(hitPoint).normalize();
-            currentStart = hitPoint.add(direction.multiply(0.01)); // Small offset to avoid re-hitting same block
+
+            double tx = direction.x > 0 ? (hitPos.getX() + 1.0 - hitPoint.x) / direction.x
+                      : direction.x < 0 ? (hitPos.getX() - hitPoint.x) / direction.x
+                      : Double.MAX_VALUE;
+            double ty = direction.y > 0 ? (hitPos.getY() + 1.0 - hitPoint.y) / direction.y
+                      : direction.y < 0 ? (hitPos.getY() - hitPoint.y) / direction.y
+                      : Double.MAX_VALUE;
+            double tz = direction.z > 0 ? (hitPos.getZ() + 1.0 - hitPoint.z) / direction.z
+                      : direction.z < 0 ? (hitPos.getZ() - hitPoint.z) / direction.z
+                      : Double.MAX_VALUE;
+
+            currentStart = hitPoint.add(direction.multiply(Math.min(tx, Math.min(ty, tz)) + 0.001));
             
             // Safety check: if we've passed the target distance, we have line of sight
             double currentDistance = start.distanceTo(currentStart);
