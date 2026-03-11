@@ -37,9 +37,19 @@ public class ClientPacketHandler {
         ClientPlayNetworking.registerGlobalReceiver(ModNetworking.ENTITY_SCREENSHOT_ID,
                 (client, handler, buf, responseSender) -> {
                     final int entityId = buf.readInt();
+                    HorrorMod129.LOGGER.info("ClientPacketHandler: Received screenshot packet for entity ID: " + entityId);
                     client.execute(() -> {
-                        if (client.world == null) return;
-                        ScreenshotFromEntity.scheduleScreenshot(client.world.getEntityById(entityId));
+                        if (client.world == null) {
+                            HorrorMod129.LOGGER.warn("ClientPacketHandler: Client world is null, cannot schedule screenshot");
+                            return;
+                        }
+                        var entity = client.world.getEntityById(entityId);
+                        if (entity == null) {
+                            HorrorMod129.LOGGER.warn("ClientPacketHandler: Entity with ID " + entityId + " not found in world");
+                            return;
+                        }
+                        HorrorMod129.LOGGER.info("ClientPacketHandler: Scheduling screenshot from entity: " + entity.getName().getString());
+                        ScreenshotFromEntity.scheduleScreenshot(entity);
                     });
                 });
 

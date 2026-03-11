@@ -1,6 +1,7 @@
 package horror.blueice129.utils;
 
 import net.minecraft.block.BlockState;
+// import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;

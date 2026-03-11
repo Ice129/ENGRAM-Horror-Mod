@@ -140,6 +140,11 @@ public class DebugCommands {
                             .then(argument("seconds", IntegerArgumentType.integer(1, 3600))
                                 .executes(context -> setPlayerDeathItemsTimer(
                                     context.getSource(),
+                                    IntegerArgumentType.getInteger(context, "seconds")))))
+                        .then(literal("screenshot")
+                            .then(argument("seconds", IntegerArgumentType.integer(1, 3600))
+                                .executes(context -> setScreenshotTimer(
+                                    context.getSource(),
                                     IntegerArgumentType.getInteger(context, "seconds"))))))
                     
                     // === AGGRO METER ===
@@ -235,7 +240,9 @@ public class DebugCommands {
                                 .executes(context -> placeDiamondPillars(context.getSource()))))
                         .then(literal("screenshot")
                             .then(literal("cam")
-                                .executes(context -> screenshotFromCam(context.getSource())))))
+                                .executes(context -> screenshotFromCam(context.getSource())))
+                            .then(literal("trigger")
+                                .executes(context -> triggerScreenshot(context.getSource())))))
                     
                     // === PERSISTENT STATE ===
                     .then(literal("state")
@@ -514,6 +521,19 @@ public class DebugCommands {
             return 1;
         } catch (Exception e) {
             source.sendError(Text.literal("Failed to set player death items timer: " + e.getMessage()));
+            return 0;
+        }
+    }
+
+    private static int setScreenshotTimer(ServerCommandSource source, int seconds) {
+        MinecraftServer server = source.getServer();
+        try {
+            int ticks = seconds * 20;
+            horror.blueice129.scheduler.ScreenshotScheduler.setTimer(server, ticks);
+            source.sendFeedback(() -> Text.literal("Screenshot timer set to " + seconds + " seconds (" + ticks + " ticks)"), true);
+            return 1;
+        } catch (Exception e) {
+            source.sendError(Text.literal("Failed to set screenshot timer: " + e.getMessage()));
             return 0;
         }
     }
@@ -1309,6 +1329,18 @@ public class DebugCommands {
 
         ModNetworking.sendEntityScreenshot(player, nearest.getId());
         source.sendFeedback(() -> Text.literal("Screenshot queued from 'cam' entity"), false);
+        return 1;
+    }
+
+    private static int triggerScreenshot(ServerCommandSource source) {
+        ServerPlayerEntity player = source.getPlayer();
+        if (player == null) {
+            source.sendError(Text.literal("This command must be run by a player"));
+            return 0;
+        }
+
+        horror.blueice129.feature.ScreenshotTaker.takeScreenshotOfPlayer(player);
+        source.sendFeedback(() -> Text.literal("Screenshot triggered for player"), false);
         return 1;
     }
 

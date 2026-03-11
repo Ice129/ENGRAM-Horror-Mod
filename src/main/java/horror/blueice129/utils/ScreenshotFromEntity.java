@@ -37,15 +37,19 @@ public class ScreenshotFromEntity {
     public static void scheduleScreenshot(Entity target) {
         if (target == null || pendingTarget != null || captureInProgress) return;
         pendingTarget = target;
+        horror.blueice129.HorrorMod129.LOGGER.info("ScreenshotFromEntity: Scheduled screenshot from entity " + target.getId() + " (" + target.getName().getString() + ")");
     }
 
     public static void captureOffscreen(GameRenderer gameRenderer, float tickDelta, long renderTime) {
         MinecraftClient client = MinecraftClient.getInstance();
         if (pendingTarget == null || client.player == null || client.world == null || captureInProgress) return;
         if (!pendingTarget.isAlive() || pendingTarget.getWorld() != client.world) {
+            horror.blueice129.HorrorMod129.LOGGER.warn("ScreenshotFromEntity: Pending target is not alive or in different world");
             pendingTarget = null;
             return;
         }
+
+        horror.blueice129.HorrorMod129.LOGGER.info("ScreenshotFromEntity: Starting offscreen capture from entity " + pendingTarget.getId());
 
         ensureOffscreenFramebuffer(client);
 
@@ -67,7 +71,11 @@ public class ScreenshotFromEntity {
             offscreenFramebuffer.beginWrite(true);
             gameRenderer.renderWorld(tickDelta, renderTime, new MatrixStack());
             ScreenshotRecorder.saveScreenshot(client.runDirectory, offscreenFramebuffer, msg -> {
-                });
+                horror.blueice129.HorrorMod129.LOGGER.info("ScreenshotFromEntity: Screenshot saved");
+                if (client.player != null) {
+                    client.player.sendMessage(msg, false);
+                }
+            });
         } finally {
             offscreenFramebuffer.endWrite();
             ((MinecraftClientAccessor) client).horrorMod129$setFramebuffer(mainFramebuffer);
