@@ -3,6 +3,7 @@ package horror.blueice129.scheduler;
 import horror.blueice129.HorrorMod129;
 import horror.blueice129.data.HorrorModPersistentState;
 import horror.blueice129.entity.Blueice129Entity;
+import horror.blueice129.utils.EntityLoginState;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.minecraft.registry.entry.RegistryEntry;
@@ -61,7 +62,7 @@ public class Blueice129SpawnScheduler {
         if (server.getPlayerManager().getPlayerList().isEmpty()) {
             return;
         }
-        
+
         HorrorModPersistentState state = HorrorModPersistentState.getServerState(server);
         if (!state.hasTimer(TIMER_ID)) {
             return; // Timer not initialized yet
@@ -77,13 +78,12 @@ public class Blueice129SpawnScheduler {
             if (retry) {
                 state.setTimer(TIMER_ID, 20 * 60 * 1); // Retry in 1 minute if spawn failed
                 HorrorMod129.LOGGER.info("Blueice129 spawn attempt failed, retrying in 1 minute");
-                
+
             } else {
                 HorrorMod129.LOGGER.info("Blueice129 spawn attempt completed");
                 state.setTimer(TIMER_ID, getRandomDelay());
             }
-            
-            
+
         }
     }
 
@@ -237,14 +237,16 @@ public class Blueice129SpawnScheduler {
         entity.refreshPositionAndAngles(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5,
                 RANDOM.nextFloat() * 360.0f, 0.0f);
 
-        //TODO: make join message consistant with login and logout, so no double join without leave
         // Spawn the entity in the world
         if (world.spawnEntity(entity)) {
-            // Broadcast join message
-            server.getPlayerManager().broadcast(
-                    net.minecraft.text.Text.literal("Blueice129 joined the game")
-                            .styled(style -> style.withColor(0xFFFF55)),
-                    false);
+
+            if (!EntityLoginState.isEntityOnline(HorrorModPersistentState.getServerState(server))) {
+                server.getPlayerManager().broadcast(
+                        net.minecraft.text.Text.literal("Blueice129 joined the game")
+                                .styled(style -> style.withColor(0xFFFF55)),
+                        false);
+                EntityLoginState.setEntityLoggedIn(HorrorModPersistentState.getServerState(server));
+            }
 
             HorrorMod129.LOGGER.info("Blueice129 entity spawned at {} {} {}",
                     pos.getX(), pos.getY(), pos.getZ());

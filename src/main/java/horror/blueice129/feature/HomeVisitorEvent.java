@@ -3,6 +3,8 @@ package horror.blueice129.feature;
 import horror.blueice129.HorrorMod129;
 import horror.blueice129.utils.LineOfSightUtils;
 import horror.blueice129.utils.ChunkLoader;
+import horror.blueice129.utils.EntityLoginState;
+import horror.blueice129.data.HorrorModPersistentState;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
@@ -360,12 +362,14 @@ public class HomeVisitorEvent {
     }
 
     private static boolean playerLeavesWorld(MinecraftServer server) {
-        if (random.nextDouble() < 0.3) { // 30% chance the player leaves
+        if (random.nextDouble() < 0.4) { // 40% chance the player leaves
             // send a chat message saying another player just left the world
-            // TODO: make this work with global logged in variable yet to be made
-            server.getPlayerManager().broadcast(
-                    Text.literal("Blueice129 left the game").styled(style -> style.withColor(0xFFFF55)), false);
-            return true;
+            if (EntityLoginState.isEntityOnline(HorrorModPersistentState.getServerState(server))) {
+                server.getPlayerManager().broadcast(
+                        Text.literal("Blueice129 left the game").styled(style -> style.withColor(0xFFFF55)), false);
+                EntityLoginState.setEntityLoggedOut(HorrorModPersistentState.getServerState(server));
+                return true;
+            }
         }
         return false; // Return true if the player has left, false otherwise
     }
