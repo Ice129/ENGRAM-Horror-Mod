@@ -52,7 +52,7 @@ public class HorrorMod129 implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
-		LOGGER.info("Initializing Horror Mod 129!");
+		LOGGER.info("Initializing ENGRAM");
 		
 		// Load config first before any feature registration
 		ConfigManager.loadConfig();
@@ -85,6 +85,6 @@ public class HorrorMod129 implements ModInitializer {
 		// Register debug commands
 		DebugCommands.register();
 
-		LOGGER.info("Horror Mod 129 initialization complete!");
+		LOGGER.info("ENGRAM initialization complete");
 	}
 }
