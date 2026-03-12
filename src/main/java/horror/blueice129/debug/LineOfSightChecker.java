@@ -49,7 +49,7 @@ public class LineOfSightChecker {
                     ).normalize();
                     
                     // Check if the block is within the player's field of view
-                    if (LineOfSightUtils.isWithinFieldOfView(player, direction)) {
+                    if (LineOfSightUtils.isWithinFieldOfView(player.getPitch(), player.getYaw(), direction)) {
                         world.setBlockState(targetPos, net.minecraft.block.Blocks.BLUE_STAINED_GLASS.getDefaultState());
                     }
                 }
@@ -134,7 +134,7 @@ public class LineOfSightChecker {
                     ).normalize();
                     
                     // Only check blocks within FOV cone
-                    if (!LineOfSightUtils.isWithinFieldOfView(player, direction)) {
+                    if (!LineOfSightUtils.isWithinFieldOfView(player.getPitch(), player.getYaw(), direction)) {
                         continue;
                     }
                     

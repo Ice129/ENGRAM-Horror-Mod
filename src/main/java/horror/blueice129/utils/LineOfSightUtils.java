@@ -1,7 +1,7 @@
 package horror.blueice129.utils;
 
 import net.minecraft.block.BlockState;
-// import net.minecraft.entity.Entity;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
@@ -54,35 +54,33 @@ public class LineOfSightUtils {
     }
 
     /**
-     * Checks if a direction is within the player's field of view.
+     * Checks if a direction is within the given field of view.
      * Takes into account the rectangular screen shape and aspect ratio.
      * 
-     * @param player    The player
+     * @param pitch     Pitch in degrees
+     * @param yaw       Yaw in degrees
      * @param direction The direction vector to check
-     * @return true if the direction is within the player's field of view
+     * @return true if the direction is within the field of view
      */
-    public static boolean isWithinFieldOfView(PlayerEntity player, Vec3d direction) {
-        float pitch = player.getPitch() * ((float) Math.PI / 180F);
-        float yaw = player.getYaw() * ((float) Math.PI / 180F);
+    public static boolean isWithinFieldOfView(float pitch, float yaw, Vec3d direction) {
+        float pitchRad = pitch * ((float) Math.PI / 180F);
+        float yawRad = yaw * ((float) Math.PI / 180F);
 
        
-        float x = -MathHelper.sin(yaw) * MathHelper.cos(pitch);
-        float y = -MathHelper.sin(pitch);
-        float z = MathHelper.cos(yaw) * MathHelper.cos(pitch);
+        float x = -MathHelper.sin(yawRad) * MathHelper.cos(pitchRad);
+        float y = -MathHelper.sin(pitchRad);
+        float z = MathHelper.cos(yawRad) * MathHelper.cos(pitchRad);
         Vec3d viewVector = new Vec3d(x, y, z).normalize();
 
         direction = direction.normalize();
 
-        double hFovDegrees = 150.0; // 150 degrees horizontal
-        double vFovDegrees = 130.0; // 130 degrees vertical
+        double hFovDegrees = 150.0;
+        double vFovDegrees = 130.0;
 
-        // Convert to radians and calculate half-angles
-        double hFovRad = hFovDegrees * (Math.PI / 180.0);
-        double vFovRad = vFovDegrees * (Math.PI / 180.0);
-        double hFovHalf = hFovRad / 2.0; 
-        double vFovHalf = vFovRad / 2.0; 
+        double hFovHalf = hFovDegrees * (Math.PI / 180.0) / 2.0;
+        double vFovHalf = vFovDegrees * (Math.PI / 180.0) / 2.0;
 
-        Vec3d rightVector = new Vec3d(MathHelper.cos(yaw), 0, MathHelper.sin(yaw)).normalize();
+        Vec3d rightVector = new Vec3d(MathHelper.cos(yawRad), 0, MathHelper.sin(yawRad)).normalize();
         Vec3d upVector = viewVector.crossProduct(rightVector).normalize();
 
         
@@ -113,6 +111,10 @@ public class LineOfSightUtils {
         return hasLineOfSight(player, blockPos, maxDistance);
     }
     
+    public static boolean hasLineOfSight(PlayerEntity player, BlockPos targetPos, double maxDistance) {
+        return hasLineOfSight(player.getWorld(), player.getEyePos(), player.getPitch(), player.getYaw(), targetPos, maxDistance, player);
+    }
+
     /**
      * Checks if a position has a clear line of sight from the player.
      * This is different from isBlockRenderedOnScreen - it checks if the player
@@ -127,25 +129,22 @@ public class LineOfSightUtils {
      * For AIR blocks: Returns true if nothing blocks the view to that position
      * For SOLID blocks: Returns true if the block itself is visible
      * 
-     * @param player The player to check from
+     * @param world The world
+     * @param eyePos The starting position (player eye)
      * @param targetPos The position to check
      * @param maxDistance The maximum distance to check
      * @return true if the position has clear line of sight from player
      */
-    public static boolean hasLineOfSight(PlayerEntity player, BlockPos targetPos, double maxDistance) {
-        World world = player.getWorld();
-        Vec3d eyePos = player.getEyePos();
+    public static boolean hasLineOfSight(World world, Vec3d eyePos, float pitch, float yaw, BlockPos targetPos, double maxDistance, Entity entity) {
         Vec3d targetCenter = new Vec3d(targetPos.getX() + 0.5, targetPos.getY() + 0.5, targetPos.getZ() + 0.5);
         
-        // Early distance check (cheap)
         double distance = eyePos.distanceTo(targetCenter);
         if (distance > maxDistance) {
             return false;
         }
         
-        // Early FOV check on center (cheap, filters out ~75% of blocks behind player)
         Vec3d directionToCenter = targetCenter.subtract(eyePos).normalize();
-        if (!isWithinFieldOfView(player, directionToCenter)) {
+        if (!isWithinFieldOfView(pitch, yaw, directionToCenter)) {
             return false;
         }
         
@@ -169,7 +168,7 @@ public class LineOfSightUtils {
         
         // Check each corner - early stop if ANY corner is visible
         for (Vec3d corner : corners) {
-            if (hasLineOfSightToPoint(player, world, eyePos, corner, targetPos, isTargetPassable)) {
+            if (hasLineOfSightToPoint(world, eyePos, corner, targetPos, isTargetPassable, entity)) {
                 return true; // EARLY RETURN - at least one corner is visible
             }
         }
@@ -193,8 +192,8 @@ public class LineOfSightUtils {
      * @param isTargetPassable Whether the target block is air/passable
      * @return true if there's line of sight to the point
      */
-    private static boolean hasLineOfSightToPoint(PlayerEntity player, World world, Vec3d start, Vec3d end, 
-                                                   BlockPos targetPos, boolean isTargetPassable) {
+    private static boolean hasLineOfSightToPoint(World world, Vec3d start, Vec3d end,
+                                                   BlockPos targetPos, boolean isTargetPassable, Entity entity) {
         Vec3d currentStart = start;
         int leafCount = 0;
         double targetDistance = start.distanceTo(end);
@@ -206,9 +205,9 @@ public class LineOfSightUtils {
             BlockHitResult hitResult = world.raycast(new RaycastContext(
                 currentStart,
                 end,
-                RaycastContext.ShapeType.COLLIDER,  // CHANGED: Use COLLIDER instead of OUTLINE
+                RaycastContext.ShapeType.COLLIDER,
                 RaycastContext.FluidHandling.NONE,
-                player
+                entity
             ));
             
             // If we hit the target block itself, it's visible
