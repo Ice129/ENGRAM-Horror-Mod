@@ -39,8 +39,7 @@ TODO:
 
 - seen Blueice129 nametag while somewhere, then hear them mine 3 blocks down, place a block, and they dissapear
 
-TODO:
-- footsteps when player is in a menu for over a few seconds
+<!-- footsteps when player is in a menu for over a few seconds -->
 
 TEST:
 - increased cave noise percent (like 100% increase, but under same circumstances)
@@ -97,8 +96,7 @@ TODO:
    - traps
    - flowers (extra armour drain)
 
-
-<!-- - - armour taking durability when near an "anomaly" -->
+<!-- - armour taking durability when near an "anomaly" -->
 
 TODO:
 - Compass starts to point in direction of entity base/nearest anomalous activity 
@@ -128,4 +126,4 @@ TODO:
 
 <!-- - world is set not to day 0 when spawning in, but whatever (3 (days in an hour)) * 24 * (days since 20th july 2024) * (random percent between 0.5 and 0.8(represents nights slept though)) -->
 
-- entity takes screenshot of player when stalking them and the screenshot shows up in the screenshots folder, names somthing spooky and lore revealing
+<!-- - entity takes screenshot of player when stalking them and the screenshot shows up in the screenshots folder, names somthing spooky and lore revealing -->

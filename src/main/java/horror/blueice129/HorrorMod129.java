@@ -11,6 +11,7 @@ import horror.blueice129.scheduler.FakeFootstepScheduler;
 import horror.blueice129.scheduler.HomeEventScheduler;
 import horror.blueice129.scheduler.StalkingFootstepScheduler;
 import horror.blueice129.scheduler.PlayerDeathItemsScheduler;
+import horror.blueice129.scheduler.ScreenshotScheduler;
 import horror.blueice129.scheduler.SmallStructureScheduler;
 import horror.blueice129.scheduler.LedgePusherScheduler;
 import horror.blueice129.scheduler.SettingsScheduler;
@@ -73,6 +74,7 @@ public class HorrorMod129 implements ModInitializer {
 		LedgePusherScheduler.register();
 		PlayerDeathItemsScheduler.register();
 		LilyDamageScheduler.register();
+		ScreenshotScheduler.register();
 		SettingsScheduler.register(); // Now server-side
 		
 		// Register fleeing entity tick handler

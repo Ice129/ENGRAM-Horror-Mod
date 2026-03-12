@@ -3,7 +3,7 @@
 # ENGRAM 
 ##### (Previously My World.jar)
 ## A Vanilla-Style Slow-Burn Psychological Horror Mod
-#### *Version 0.5.0-beta*
+#### *Version 0.6.0-beta*
 
 Horror lives in the familiar, and there is no game more familiar than Minecraft. Playing off your own paranoia, ENGRAM is designed to make you question even the most innocuous aspects of your world. 
 
@@ -21,16 +21,17 @@ Join the [Discord](https://discord.gg/hgCNtXbqkC) to report bugs, give feedback,
 - **Pillars** - Something marked this place, it might come back.
 - **Explored caves** - Already lit, with ores already mined.
 - **Chopped-down trees** - You aren't the only one who needs wood.
-- **Punched off ledges** - Knocked from cliffs by unseen hands
-- **Footsteps behind you** - You're being followed
-- **A Not So New World** - It must just be a glitch
-- **Stolen items** - Missing tools, rearranged chests, doors left ajar
-- **Escalating aggression** - The longer you survive, the bolder it becomes
+- **Punched off ledges** - Knocked from cliffs by unseen hands.
+- **Footsteps behind you** - You're being followed.
+- **A Not So New World** - It must just be a glitch.
+- **Screenshots** - You're being watched and recorded.
+- **Stolen items** - Missing tools, rearranged chests, doors left ajar.
+- **Escalating aggression** - The longer you survive, the bolder it becomes.
 - **Forgotten deaths** - You don’t remember dying here… so who did?
 - **Another player?** - It feels like someone else has been building, mining, surviving…
 - **Is it your world?** - What if you're the one who doesn’t belong here?
 - **Settings Changed** - Are you sure you turned that off? It’s back on now.
-- **Multiplayer support** - Experience the horror with friends
+- **Multiplayer support** - Experience the horror with friends!
 - **\* Strip mines** - Large, deep, unnatural tunnels dug beneath your feet.
 - **\* Being watched** - A presence staring down at you when you least expect it.
 

@@ -5,6 +5,11 @@
 	"mixins": [
 		"ExampleMixin"
 	],
+	"client": [
+		"client.GameRendererAccessor",
+		"client.GameRendererMixin",
+		"client.MinecraftClientAccessor"
+	],
 	"injectors": {
 		"defaultRequire": 1
 	},

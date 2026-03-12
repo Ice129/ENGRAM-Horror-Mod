@@ -8,3 +8,4 @@ if suggested changes could be improved to follow best pracices, do so and inform
 keep in code comments to a minimum, only add them when the code is not self explanatory.
 make sure comments are as if the user wrote them, dont say things about how somthing was fixed or can be added later etc.
 this mod is coded in java for the fabric modloader, for minecraft version 1.20.1
+when solving an issue, keep your thinking short and to the point, no rambling. list off possible solutions then susinctly research each one.

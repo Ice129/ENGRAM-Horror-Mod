@@ -1,7 +1,7 @@
 # ENGRAM
 ##### (Previously My World.jar)
 ## A Vanilla-Style Slow-Burn Psychological Horror Mod
-#### *Version 0.5.0-beta*
+#### *Version 0.6.0-beta*
 
 Horror lives in the familiar, and there is no game more familiar than Minecraft. Playing off your own paranoia, ENGRAM is designed to make you question even the most innocuous aspects of your world. 
 
@@ -20,16 +20,17 @@ Join the [Discord](https://discord.gg/hgCNtXbqkC) to report bugs, give feedback,
 <p>- <strong>Pillars</strong> — Something marked this place, it might come back.</p>
 <p>- <strong>Explored caves</strong> — Already lit, with ores already mined.</p>
 <p>- <strong>Chopped-down trees</strong> — You aren't the only one who needs wood.</p>
-<p>- <strong>Punched off ledges</strong> — Knocked from cliffs by unseen hands</p>
-<p>- <strong>Footsteps behind you</strong> — You're being followed</p>
-<p>- <strong>A Not So New World</strong> — It must just be a glitch</p>
-<p>- <strong>Stolen items</strong> — Missing tools, rearranged chests, doors left ajar</p>
-<p>- <strong>Escalating aggression</strong> — The longer you survive, the bolder it becomes</p>
+<p>- <strong>Punched off ledges</strong> — Knocked from cliffs by unseen hands.</p>
+<p>- <strong>Footsteps behind you</strong> — You're being followed.</p>
+<p>- <strong>A Not So New World</strong> — It must just be a glitch.</p>
+<p>- <strong>Screenshots</strong> — You're being watched and recorded.</p>
+<p>- <strong>Stolen items</strong> — Missing tools, rearranged chests, doors left ajar.</p>
+<p>- <strong>Escalating aggression</strong> — The longer you survive, the bolder it becomes.</p>
 <p>- <strong>Forgotten deaths</strong> — You don't remember dying here… so who did?</p>
 <p>- <strong>Another player?</strong> — It feels like someone else has been building, mining, surviving…</p>
 <p>- <strong>Is it your world?</strong> — What if you're the one who doesn't belong here?</p>
 <p>- <strong>Settings Changed</strong> — Are you sure you turned that off? It's back on now.</p>
-<p>- <strong>Multiplayer support</strong> — Experience the horror with friends</p>
+<p>- <strong>Multiplayer support</strong> — Experience the horror with friends!</p>
 <p>- <strong>*Strip mines</strong> — Large, deep, unnatural tunnels dug beneath your feet.</p>
 <p>- <strong>*Being watched</strong> — A presence staring down at you when you least expect it.</p>
 
