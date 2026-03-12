@@ -47,7 +47,10 @@ TEST:
 - minecraft:entity.fox.screech
 - minecraft:ambient.warped_forest.mood
 - minecraft:block.conduit.ambient.short
-- 
+- minecraft:ambient.basalt_deltas.mood
+- minecraft:ambient.crimson_forest.mood
+- minecraft:ambient.underwater.loop.additions.ultra_rare
+- minecraft:ambient.cave
 
 ## Block Event Ideas
 

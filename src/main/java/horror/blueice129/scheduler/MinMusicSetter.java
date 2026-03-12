@@ -1,6 +1,7 @@
 package horror.blueice129.scheduler;
 
 import horror.blueice129.HorrorMod129;
+import horror.blueice129.feature.AmbianceVolumeForcer;
 import horror.blueice129.feature.MusicVolumeLocker;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -40,6 +41,7 @@ public class MinMusicSetter {
                 return;
             }
             MusicVolumeLocker.enforceMinimumMusicVolume();
+            AmbianceVolumeForcer.enforceAmbianceVolume();
             tickCooldown = TICK_COOLDOWN_DURATION;
         });
 
