@@ -37,7 +37,7 @@ public class ScreenshotFromEntity {
     public static void scheduleScreenshot(Entity target) {
         if (target == null || pendingTarget != null || captureInProgress) return;
         pendingTarget = target;
-        horror.blueice129.HorrorMod129.LOGGER.info("ScreenshotFromEntity: Scheduled screenshot from entity " + target.getId() + " (" + target.getName().getString() + ")");
+        // horror.blueice129.HorrorMod129.LOGGER.info("ScreenshotFromEntity: Scheduled screenshot from entity " + target.getId() + " (" + target.getName().getString() + ")");
     }
 
     public static void captureOffscreen(GameRenderer gameRenderer, float tickDelta, long renderTime) {
@@ -49,7 +49,7 @@ public class ScreenshotFromEntity {
             return;
         }
 
-        horror.blueice129.HorrorMod129.LOGGER.info("ScreenshotFromEntity: Starting offscreen capture from entity " + pendingTarget.getId());
+        // horror.blueice129.HorrorMod129.LOGGER.info("ScreenshotFromEntity: Starting offscreen capture from entity " + pendingTarget.getId());
 
         ensureOffscreenFramebuffer(client);
 
@@ -139,7 +139,10 @@ public class ScreenshotFromEntity {
 
         float tickDelta = context.tickDelta();
 
+        // TODO: make this work with multiple players in multiplayer
+
         Vec3d cameraPos = camera.getPos();
+        // fake player since the real player won't be rendered in first person
         OtherClientPlayerEntity fakePlayer = new OtherClientPlayerEntity(client.world, client.player.getGameProfile());
         fakePlayer.copyPositionAndRotation(client.player);
         fakePlayer.prevX = client.player.prevX;
