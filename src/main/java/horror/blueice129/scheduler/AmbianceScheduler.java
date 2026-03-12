@@ -10,7 +10,7 @@ import net.minecraft.server.world.ServerWorld;
 
 public class AmbianceScheduler {
 
-    private static final int COOLDOWN_TICKS = 15 * 60 * 20; // 15 minutes in ticks
+    private static final int COOLDOWN_TICKS = 20 * 60 * 20; // 20 minutes in ticks
     // private static final int COOLDOWN_TICKS = 3; ////////////////// DEBUG ONLY, 3 TICKS COOLDOWN //////////////////////
 
     public static void register() {

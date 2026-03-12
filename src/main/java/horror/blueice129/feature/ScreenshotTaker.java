@@ -118,7 +118,7 @@ public class ScreenshotTaker {
 
                 if (hasLineOfSightFromBatToPlayer(world, candidatePos, player)) {
                     // HorrorMod129.LOGGER.info("ScreenshotTaker: Found position after checking " + positionsChecked + " positions (air check failures: " + airCheckFailures + ", LOS failures: " + losFailures + ")");
-                    return candidatePos;
+                    return candidatePos.down();
                 }
                 losFailures++;
             }
