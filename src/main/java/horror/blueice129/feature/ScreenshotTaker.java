@@ -2,6 +2,7 @@ package horror.blueice129.feature;
 
 import horror.blueice129.HorrorMod129;
 import horror.blueice129.network.ModNetworking;
+import horror.blueice129.utils.BlockTypes;
 import horror.blueice129.utils.LineOfSightUtils;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -104,7 +105,12 @@ public class ScreenshotTaker {
                 BlockPos candidatePos = new BlockPos(x, y, z);
                 positionsChecked++;
 
-                if (!world.isAir(candidatePos) || !world.isAir(candidatePos.up())) {
+                boolean candidatePassable = world.isAir(candidatePos)
+                    || BlockTypes.isFoliage(world.getBlockState(candidatePos).getBlock(), true);
+                boolean candidateAbovePassable = world.isAir(candidatePos.up())
+                    || BlockTypes.isFoliage(world.getBlockState(candidatePos.up()).getBlock(), true);
+
+                if (!candidatePassable || !candidateAbovePassable) {
                     airCheckFailures++;
                     continue;
                 }
