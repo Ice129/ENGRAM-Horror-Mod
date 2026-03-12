@@ -25,14 +25,15 @@ public class StalkingFootsteps {
     private static final double LOS_CHECK_DISTANCE = 64.0;
 
     // --- State key constants ---
-    private static final String KEY_ACTIVE       = "stalkingActive";       // 0=idle 1=walking 2=paused
-    private static final String KEY_PATH         = "stalkingPath";
-    private static final String KEY_STEP         = "stalkingCurrentStep";
-    private static final String KEY_STEP_TIMER   = "stalkingStepTimer";
-    private static final String KEY_ELAPSED      = "stalkingElapsedTicks";
-    private static final String KEY_TOTAL_STEPS  = "stalkingTotalSteps";
-    private static final String KEY_LAST_POS     = "stalkingLastPos";
-    private static final String KEY_PAUSED_POS   = "stalkingPausedPlayerPos";
+    private static final String KEY_ACTIVE        = "stalkingActive";       // 0=idle 1=walking 2=paused
+    private static final String KEY_PATH          = "stalkingPath";
+    private static final String KEY_STEP          = "stalkingCurrentStep";
+    private static final String KEY_STEP_TIMER    = "stalkingStepTimer";
+    private static final String KEY_PAUSE_TIMER   = "stalkingPauseTimer";
+    private static final String KEY_ELAPSED       = "stalkingElapsedTicks";
+    private static final String KEY_TOTAL_STEPS   = "stalkingTotalSteps";
+    private static final String KEY_LAST_POS      = "stalkingLastPos";
+    private static final String KEY_PAUSED_POS    = "stalkingPausedPlayerPos";
 
     public static boolean isActive(MinecraftServer server) {
         return HorrorModPersistentState.getServerState(server).getIntValue(KEY_ACTIVE, 0) != 0;
@@ -182,6 +183,13 @@ public class StalkingFootsteps {
     // -------------------------------------------------------------------------
 
     private static void tickPaused(MinecraftServer server, HorrorModPersistentState state) {
+        int pauseTimer = state.getIntValue(KEY_PAUSE_TIMER, 0);
+        if (pauseTimer > 0) {
+            state.setIntValue(KEY_PAUSE_TIMER, pauseTimer - 1);
+            return;
+        }
+        state.setIntValue(KEY_PAUSE_TIMER, CHECK_INTERVAL);
+
         ServerWorld overworld = server.getOverworld();
         if (overworld == null) return;
 
@@ -297,6 +305,7 @@ public class StalkingFootsteps {
         state.removePositionList(KEY_PATH);
         state.removeIntValue(KEY_STEP);
         state.removeIntValue(KEY_STEP_TIMER);
+        state.removeIntValue(KEY_PAUSE_TIMER);
         state.removeIntValue(KEY_ELAPSED);
         state.removeIntValue(KEY_TOTAL_STEPS);
         state.removePosition(KEY_LAST_POS);
