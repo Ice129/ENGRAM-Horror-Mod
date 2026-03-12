@@ -19,7 +19,7 @@ public class ScreenshotTaker {
 
     private static final Map<Entity, Integer> pendingDiscards = new HashMap<>();
     private static final Map<Entity, PendingScreenshot> pendingScreenshots = new HashMap<>();
-    private static final int BAT_DISCARD_DELAY_TICKS = 10;
+    private static final int ARMOURSTAND_DISCARD_DELAY_TICKS = 10;
     private static final int SCREENSHOT_SEND_DELAY_TICKS = 3;
 
     private static final int MIN_DISTANCE = 10;
@@ -32,7 +32,7 @@ public class ScreenshotTaker {
         HorrorMod129.LOGGER.info("ScreenshotTaker: Starting screenshot attempt for player " + player.getName().getString());
         ServerWorld world = player.getServerWorld();
         BlockPos playerPos = player.getBlockPos();
-        HorrorMod129.LOGGER.info("ScreenshotTaker: Player position: " + playerPos);
+        // HorrorMod129.LOGGER.info("ScreenshotTaker: Player position: " + playerPos);
 
         BlockPos cameraPos = findSuitableCameraPosition(world, player, playerPos);
         if (cameraPos == null) {
@@ -40,7 +40,7 @@ public class ScreenshotTaker {
             return false;
         }
 
-        HorrorMod129.LOGGER.info("ScreenshotTaker: Found camera position: " + cameraPos);
+        // HorrorMod129.LOGGER.info("ScreenshotTaker: Found camera position: " + cameraPos);
 
         Entity cameraEntity = spawnCameraEntity(world, cameraPos, player);
         if (cameraEntity == null) {
@@ -48,11 +48,11 @@ public class ScreenshotTaker {
             return false;
         }
 
-        HorrorMod129.LOGGER.info("ScreenshotTaker: Spawned camera entity with ID " + cameraEntity.getId() + " at " + cameraPos);
+        // HorrorMod129.LOGGER.info("ScreenshotTaker: Spawned camera entity with ID " + cameraEntity.getId() + " at " + cameraPos);
 
         pendingScreenshots.put(cameraEntity, new PendingScreenshot(player, SCREENSHOT_SEND_DELAY_TICKS));
-        HorrorMod129.LOGGER.info("ScreenshotTaker: Queued screenshot packet in " + SCREENSHOT_SEND_DELAY_TICKS + " ticks, entity will be discarded in " + BAT_DISCARD_DELAY_TICKS + " ticks");
-        pendingDiscards.put(cameraEntity, BAT_DISCARD_DELAY_TICKS);
+        // HorrorMod129.LOGGER.info("ScreenshotTaker: Queued screenshot packet in " + SCREENSHOT_SEND_DELAY_TICKS + " ticks, entity will be discarded in " + BAT_DISCARD_DELAY_TICKS + " ticks");
+        pendingDiscards.put(cameraEntity, ARMOURSTAND_DISCARD_DELAY_TICKS);
         return true;
     }
 
@@ -64,7 +64,7 @@ public class ScreenshotTaker {
                 Entity cameraEntity = entry.getKey();
                 if (!cameraEntity.isRemoved()) {
                     ModNetworking.sendEntityScreenshot(pending.player(), cameraEntity.getId());
-                    HorrorMod129.LOGGER.info("ScreenshotTaker: Sent screenshot packet to player for camera entity ID " + cameraEntity.getId());
+                    // HorrorMod129.LOGGER.info("ScreenshotTaker: Sent screenshot packet to player for camera entity ID " + cameraEntity.getId());
                 } else {
                     HorrorMod129.LOGGER.warn("ScreenshotTaker: Camera entity was removed before screenshot packet could be sent");
                 }
@@ -78,7 +78,7 @@ public class ScreenshotTaker {
             int remaining = entry.getValue() - 1;
             if (remaining <= 0) {
                 entry.getKey().discard();
-                HorrorMod129.LOGGER.info("ScreenshotTaker: Discarded camera entity " + entry.getKey().getId());
+                // HorrorMod129.LOGGER.info("ScreenshotTaker: Discarded camera entity " + entry.getKey().getId());
                 return true;
             }
             entry.setValue(remaining);
@@ -87,7 +87,7 @@ public class ScreenshotTaker {
     }
 
     private static BlockPos findSuitableCameraPosition(ServerWorld world, ServerPlayerEntity player, BlockPos playerPos) {
-        HorrorMod129.LOGGER.info("ScreenshotTaker: Searching for camera position...");
+        // HorrorMod129.LOGGER.info("ScreenshotTaker: Searching for camera position...");
         int positionsChecked = 0;
         int airCheckFailures = 0;
         int losFailures = 0;
@@ -117,7 +117,7 @@ public class ScreenshotTaker {
                 }
 
                 if (hasLineOfSightFromBatToPlayer(world, candidatePos, player)) {
-                    HorrorMod129.LOGGER.info("ScreenshotTaker: Found position after checking " + positionsChecked + " positions (air check failures: " + airCheckFailures + ", LOS failures: " + losFailures + ")");
+                    // HorrorMod129.LOGGER.info("ScreenshotTaker: Found position after checking " + positionsChecked + " positions (air check failures: " + airCheckFailures + ", LOS failures: " + losFailures + ")");
                     return candidatePos;
                 }
                 losFailures++;
@@ -129,14 +129,14 @@ public class ScreenshotTaker {
     }
 
     private static Entity spawnCameraEntity(ServerWorld world, BlockPos pos, ServerPlayerEntity player) {
-        HorrorMod129.LOGGER.info("ScreenshotTaker: Creating marker armor stand camera entity");
+        // HorrorMod129.LOGGER.info("ScreenshotTaker: Creating marker armor stand camera entity");
         ArmorStandEntity cameraEntity = EntityType.ARMOR_STAND.create(world);
         if (cameraEntity == null) {
             HorrorMod129.LOGGER.error("ScreenshotTaker: EntityType.ARMOR_STAND.create() returned null");
             return null;
         }
 
-        HorrorMod129.LOGGER.info("ScreenshotTaker: Setting camera entity position and orientation");
+        // HorrorMod129.LOGGER.info("ScreenshotTaker: Setting camera entity position and orientation");
         Vec3d cameraPos = new Vec3d(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
         Vec3d dir = player.getEyePos().subtract(cameraPos);
         double hDist = Math.sqrt(dir.x * dir.x + dir.z * dir.z);
@@ -149,7 +149,7 @@ public class ScreenshotTaker {
         cameraEntity.setNoGravity(true);
         cameraEntity.setSilent(true);
 
-        HorrorMod129.LOGGER.info("ScreenshotTaker: Attempting to spawn camera entity in world");
+        // HorrorMod129.LOGGER.info("ScreenshotTaker: Attempting to spawn camera entity in world");
         if (!world.spawnEntity(cameraEntity)) {
             HorrorMod129.LOGGER.error("ScreenshotTaker: world.spawnEntity() returned false");
             return null;
