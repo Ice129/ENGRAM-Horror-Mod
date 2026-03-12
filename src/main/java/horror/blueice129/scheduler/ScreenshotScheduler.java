@@ -63,9 +63,14 @@ public class ScreenshotScheduler {
             ServerPlayerEntity player = server.getPlayerManager().getPlayerList()
                     .get(RANDOM.nextInt(server.getPlayerManager().getPlayerList().size()));
 
-            ScreenshotTaker.takeScreenshotOfPlayer(player);
-            state.setTimer(TIMER_ID, getRandomDelay(state));
-            HorrorMod129.LOGGER.info("Screenshot event triggered for player: " + player.getName().getString());
+            boolean success = ScreenshotTaker.takeScreenshotOfPlayer(player);
+            if (success) {
+                state.setTimer(TIMER_ID, getRandomDelay(state));
+                HorrorMod129.LOGGER.info("Screenshot event triggered for player: " + player.getName().getString());
+            } else {
+                state.setTimer(TIMER_ID, 60 * 20); // Retry after 1 minute if screenshot failed
+                HorrorMod129.LOGGER.warn("Screenshot event failed for player: " + player.getName().getString());
+            }
         }
     }
 

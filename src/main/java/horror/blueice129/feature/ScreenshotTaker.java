@@ -28,7 +28,7 @@ public class ScreenshotTaker {
     private static final int VERTICAL_RANGE = 10;
     private static final Random RANDOM = Random.create();
 
-    public static void takeScreenshotOfPlayer(ServerPlayerEntity player) {
+    public static boolean takeScreenshotOfPlayer(ServerPlayerEntity player) {
         HorrorMod129.LOGGER.info("ScreenshotTaker: Starting screenshot attempt for player " + player.getName().getString());
         ServerWorld world = player.getServerWorld();
         BlockPos playerPos = player.getBlockPos();
@@ -37,7 +37,7 @@ public class ScreenshotTaker {
         BlockPos cameraPos = findSuitableCameraPosition(world, player, playerPos);
         if (cameraPos == null) {
             HorrorMod129.LOGGER.warn("ScreenshotTaker: Failed to find suitable camera position after " + MAX_ATTEMPTS + " attempts");
-            return;
+            return false;
         }
 
         HorrorMod129.LOGGER.info("ScreenshotTaker: Found camera position: " + cameraPos);
@@ -45,7 +45,7 @@ public class ScreenshotTaker {
         Entity cameraEntity = spawnCameraEntity(world, cameraPos, player);
         if (cameraEntity == null) {
             HorrorMod129.LOGGER.warn("ScreenshotTaker: Failed to spawn camera entity");
-            return;
+            return false;
         }
 
         HorrorMod129.LOGGER.info("ScreenshotTaker: Spawned camera entity with ID " + cameraEntity.getId() + " at " + cameraPos);
@@ -53,6 +53,7 @@ public class ScreenshotTaker {
         pendingScreenshots.put(cameraEntity, new PendingScreenshot(player, SCREENSHOT_SEND_DELAY_TICKS));
         HorrorMod129.LOGGER.info("ScreenshotTaker: Queued screenshot packet in " + SCREENSHOT_SEND_DELAY_TICKS + " ticks, entity will be discarded in " + BAT_DISCARD_DELAY_TICKS + " ticks");
         pendingDiscards.put(cameraEntity, BAT_DISCARD_DELAY_TICKS);
+        return true;
     }
 
     public static void tick() {
