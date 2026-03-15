@@ -2,6 +2,7 @@ package horror.blueice129.feature.house;
 
 import horror.blueice129.utils.StructurePlacer;
 import horror.blueice129.utils.SurfaceFinder;
+// import horror.blueice129.data.HorrorModPersistentState;
 import horror.blueice129.utils.BlockTypes;
 
 // import net.minecraft.block.Block;
@@ -28,10 +29,10 @@ public class EntityHouse {
 
     // functions planned for this event
     //
-    // find house start location
+    // find house start location 
     // - takes environment into account, like a flat ish forrest area, or plains
     //
-    // calculate house stage
+    // calculate house stage --DONE--
     // - based off aggro
     //
     // place house blocks
@@ -40,10 +41,10 @@ public class EntityHouse {
     // update loot
     // - loot in chests and containers is updated
     //
-    // prepare environment
+    // prepare environment --DONE--
     // - clear trees and grass and level the area more
     //
-    // calculate wood
+    // calculate wood -- DONE--
     // - gets the nearest average tree type, and uses that type of wood for the
     // house
     //
@@ -60,9 +61,9 @@ public class EntityHouse {
 
     Random RANDOM = Random.create();
 
-    private static BlockPos houseStartPos;
+    // private static BlockPos houseStartPos;
     public static BlockPos[] possibleHouseStartLocations;
-    private static int houseStage;
+    // private static int houseStage;
 
     public static int findSuitableHouseStartLocation(PlayerEntity player, ServerWorld world, int MAXIMUM_FLATNESS_SCORE) {
 
@@ -153,23 +154,6 @@ public class EntityHouse {
             }
         }
 
-        // Debug visualization - place blocks and signs showing flatness scores
-        // for (int i = 0; i < toCheckGrid.length; i++) {
-        // BlockPos checkPos = toCheckGrid[i];
-        // int flatness = flatnessScores[i];
-
-        // world.setBlockState(checkPos, Blocks.DIAMOND_BLOCK.getDefaultState());
-
-        // BlockPos signPos = new BlockPos(checkPos.getX(), 100, checkPos.getZ());
-        // world.setBlockState(signPos, Blocks.OAK_SIGN.getDefaultState());
-        // if (world.getBlockEntity(signPos) instanceof SignBlockEntity sign) {
-        // sign.changeText(signText -> {
-        // return signText.withMessage(0, Text.literal("Flatness:"))
-        // .withMessage(1, Text.literal(String.valueOf(flatness)));
-        // }, true);
-        // sign.markDirty();
-        // }
-        // }
         return new FlatnessResult(bestPos, bestFlatness);
     }
 

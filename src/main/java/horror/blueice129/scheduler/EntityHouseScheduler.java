@@ -75,8 +75,8 @@ public class EntityHouseScheduler {
         ServerWorld world = server.getOverworld();
 
         switch (getPhase(state)) {
-            case FINDING_BASE      -> handleFindingBase(world, player, state);
-            case PREPARING         -> handlePreparing(world, state);
+            case FINDING_BASE      -> handleFindingBase(world, player, state); //--DONE--
+            case PREPARING         -> handlePreparing(world, player, state);
             case AWAITING_PLACEMENT -> handleAwaitingPlacement(world, player, state);
             case STAGE_ACTIVE      -> handleStageActive(world, player, state);
             case COMPLETE          -> {}
@@ -110,12 +110,14 @@ public class EntityHouseScheduler {
                 confirmedBase.toShortString(), best.pos.toShortString());
     }
 
-    private static void handlePreparing(ServerWorld world, HorrorModPersistentState state) {
+    private static void handlePreparing(ServerWorld world, PlayerEntity player, HorrorModPersistentState state) {
         BlockPos housePos = state.getPosition(HOUSE_POS_KEY);
         if (housePos == null) {
             setPhase(state, EntityHousePhase.FINDING_BASE);
             return;
         }
+
+        if (!isPlacementWindowOpen(player, housePos)) return;
 
         AreaClearer.clearArea(world, housePos);
         AreaClearer.placeTorches(world, housePos);
@@ -134,6 +136,8 @@ public class EntityHouseScheduler {
         }
 
         if (!isPlacementWindowOpen(player, housePos)) return;
+
+
 
         HousePlacer.placeHouse(1, housePos, world);
         state.setIntValue(STAGE_KEY, 1);
@@ -181,6 +185,13 @@ public class EntityHouseScheduler {
         state.setIntValue(PHASE_KEY, phase.ordinal());
     }
 
+    /**
+     * Checks if the player is far enough away and not looking at the house location, to
+     * allow placement. This is to prevent the house from suddenly appearing in front of the player.
+     * @param player
+     * @param housePos
+     * @return
+    */
     private static boolean isPlacementWindowOpen(PlayerEntity player, BlockPos housePos) {
         if (player.getBlockPos().getSquaredDistance(housePos) < PLACEMENT_MIN_DISTANCE * PLACEMENT_MIN_DISTANCE) {
             return false;
